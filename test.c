@@ -5,11 +5,10 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/29 18:25:01 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/18 22:04:45 by baschnit         ###   ########.fr       */
+/*   Created: 2024/36/19 01:36:01 by baschnit          #+#    #+#             */
+/*   Updated: 2024/36/19 01:36:01 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "dim.h"
 
 int	max_left(int table[DIM][DIM], int row);
@@ -61,7 +60,7 @@ int	read_input(int argc, char **argv, int vue[DIM][DIM])
 }
 
 int	check_size(int table[DIM][DIM], int row, int col, int size)
-	{
+{
 	int	i;
 
 	i = 0;
