@@ -5,13 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/36/19 01:36:01 by baschnit          #+#    #+#             */
-/*   Updated: 2024/36/19 01:36:01 by baschnit         ###   ########.fr       */
+/*   Created: 2027/02/19 02:38:29 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/19 02:38:39 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "dim.h"
 
-int	max_left(int table[DIM][DIM], int row);
+int 	max_left(int table[DIM][DIM], int row);
 int	max_right(int table[DIM][DIM], int row);
 int	max_down(int table[DIM][DIM], int col);
 int	max_up(int table[DIM][DIM], int col);
@@ -52,7 +53,7 @@ int	read_input(int argc, char **argv, int vue[DIM][DIM])
 	{
 		vue[0][i] = argv[1][i * 2] - '0';
 		vue[1][i] = argv[1][2 * DIM + i * 2] - '0';
-		vue[2][i] = argv[1][4 * DIM + i * 2] - '0';
+		vue[2][i] =		argv[1][4 * DIM + i * 2] - '0';
 		vue[3][i] = argv[1][6 * DIM + i * 2] - '0';
 		i++;
 	}

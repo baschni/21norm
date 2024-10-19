@@ -6,6 +6,8 @@
 #check newline after variable block
 #check tab after enum union struct typedef
 #check include guards for headers
+#check indent in preprocesser statements after include guard
+#remove tab if not on beginning of line, in variable block or in typedef!
 
 import sys
 import os
@@ -104,8 +106,25 @@ def get_left_white_space(line):
 
 def norm_file(path, errors_before):
 	with open(path, "r", encoding="utf-8") as f:
-		file = f.read()
-	file = file.split("\n")
+		orig = f.read()
+	file = orig.split("\n")
+
+	# delete empty lines on start
+	for index, line in enumerate(file):
+		if line != "":
+			break ;
+		del file[index]
+	
+
+	# extract header
+	header = ""
+
+	if sum([1 for line in file[:11] if line[:2] == "/*" and line[-2:] == "*/"]) == 11:
+		if file[8].find("########.fr       ") != -1:
+			header = file[:11]
+			file = file[11:]
+	
+	header = "\n".join(header) + "\n"
 
 	previous = None
 	next = None
@@ -119,10 +138,7 @@ def norm_file(path, errors_before):
 	in_typedef = False
 	in_one_line_block = False
 
-	# check header
-	header = ""
-	if [error for error in errors_before[path] if error["error_code"] == "INVALID_HEADER"] != []:
-		header = create_header(path, NAME, EMAIL)
+
 
 	# check all other problems
 	for index, current in enumerate(file):
@@ -183,6 +199,18 @@ def norm_file(path, errors_before):
 		# remove consecutive newlines
 		if line == "" and (previous == "" or previous == "\n"):
 			line = "\n"
+
+		line_new = []
+		pc = ""
+		# remove consecutive spaces
+		for c in line:
+			if c == " " and pc == " ":
+				pass
+			else:
+				line_new.append(c)
+			pc = c
+		line = "".join(line_new)
+		
 		
 		#check all but last
 		if next is not None:
@@ -210,9 +238,13 @@ def norm_file(path, errors_before):
 		file[index] = line
 	
 	file = [line for line in file if line != "\n"]
-
-	with open(path, "w", encoding="utf-8") as f:
-		f.write(header + "\n".join(file))
+	file = "\n".join(file)
+	if len(file) != 0 and file[0] != "\n":
+		file = "\n" + file
+	if header + file != orig or [error for error in errors_before[path] if error["error_code"] == "INVALID_HEADER"] != []:
+		header = create_header(path, NAME, EMAIL)
+		with open(path, "w", encoding="utf-8") as f:
+			f.write(header + file)
 
 if __name__ == "__main__":
 	files = sys.argv[1:]
