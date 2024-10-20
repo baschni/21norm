@@ -15,18 +15,14 @@
 # bug: problem with indentation with if on multilines
 # todo: when rechecking with norminette on a temp file, for headers the wrong protection name is detected
 
-
-
 import sys
 import os
-
 from subprocess import check_output, CalledProcessError
-
-
-ERROR_UNRECOGNIZED_TOKEN = "Error: Unrecognized token"
-ERROR_UNRECOGNIZED_LINE = "Error: Unrecognized line"
-
-
+from file_and_multi_lines import read_file_and_split_into_stripped_lines, \
+	join_multi_lines, split_multi_lines, check_and_if_ok_write_file
+from header import extract_header
+from norm_file import correct_lines_to_norm
+from parse_norminette import get_errors_from_norminette
 
 def recursive_c_h_file_search(folder):
 	ls = os.listdir(folder)
@@ -41,37 +37,14 @@ def recursive_c_h_file_search(folder):
 			files.append(file)
 	return files
 
-
-def get_errors_from_norminette(files):
-	errors = {}
-	try:
-		output = check_output([NORMINETTE_EXECUTABLE, *files], )
-	except CalledProcessError as err:
-		output = err.output
-	output = output.decode("utf-8").split("\n")
-	current_file = None
-	for line in output:
-		if line[-5:] == ": OK!" or line == "":
-			next
-		elif line[-8:] == ": Error!":
-			current_file = line[:-8]
-		else:
-			if line.find(ERROR_UNRECOGNIZED_TOKEN) != -1 or line.find(ERROR_UNRECOGNIZED_LINE) != -1:
-				del files[current_file]
-				print(current_file + ": Error: norminette could not parse file. skipping...")
-				continue
-			front, detail = line.split("):")
-			code, position = front.strip().split("(")
-			code = code[7:]
-			position = position.split(",")
-			line_number = int(position[0].split(":")[1].strip())
-			column_number = int(position[1].split(":")[1].strip())
-			if not current_file in errors:
-				errors[current_file] = []
-			errors[current_file].append({"error_code": code.strip(), "error_msg": detail.strip(), "line": line_number, "column": column_number})
-	return errors
-
-
+def norm_file(path, errors):
+	original_file, list_of_lines = read_file_and_split_into_stripped_lines(path)
+	original_header, lines_after_header, orig_creation_date, orig_creation_user = extract_header(list_of_lines)
+	no_multi_lines = join_multi_lines(lines_after_header)
+	normed_lines = correct_lines_to_norm(no_multi_lines)
+	with_multi_lines = split_multi_lines(normed_lines)
+	check_and_if_ok_write_file(path, with_multi_lines, errors, \
+							original_header, original_file, orig_creation_date, orig_creation_user)
 
 if __name__ == "__main__":
 	files = sys.argv[1:]
