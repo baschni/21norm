@@ -1,58 +1,32 @@
 #!python
 
-#todo:
-#check tab before function definition
-#check tab in variable block
-#check newline after variable block
-#check tab after enum union struct typedef
-#check include guards for headers
-#check indent in preprocesser statements after include guard
-#remove tab if not on beginning of line, in variable block or in typedef!
+# todo:
+# check tab before function definition
+# check tab in variable block
+# check newline after variable block
+# check tab after enum union struct typedef
+# check include guards for headers
+# check indent in preprocesser statements after include guard
+# remove tab if not on beginning of line, in variable block or in typedef!
+# problem if lines are broken by \ ?
+# bug: some problems are removed after second run of normer
+# idea: only really change something if norminette gave the line of error of the change?
+# todo: check if after run no new error codes are added to norminette, if yes, do not modify the file
+# bug: problem with indentation with if on multilines
+# todo: when rechecking with norminette on a temp file, for headers the wrong protection name is detected
+
+
 
 import sys
 import os
-import datetime
+
 from subprocess import check_output, CalledProcessError
 
-NORMINETTE_EXECUTABLE = "norminette"
-NAME = "baschnit"
-EMAIL = "baschnit@student.42lausanne.ch"
-HEADER_ASCII = """
 
-        :::      ::::::::   
-      :+:      :+:    :+:   
-    +:+ +:+         +:+     
-  +#+  +:+       +#+        
-+#+#+#+#+#+   +#+           
-     #+#    #+#             
-    ###   ########.fr       
-""".split("\n")
-SPACE_BEFORE_ASCII = 48
-SPACE_BEFORE_CONTENT = 3
-HEADER_LINES = 11
-HEADER_WIDTH = 80
-def create_header(filepath, name, email):
-	header = ""
-	i = 0
-	for i in range(0, HEADER_LINES):
-		if i == 0 or i == HEADER_LINES - 1:
-			header += "/* " + "*" * (HEADER_WIDTH - 6)  + " */\n"
-		elif i not in range(2,9):
-			header += "/*" + " " * (SPACE_BEFORE_ASCII + len(HEADER_ASCII[2])) + "*/\n"
-		else:
-			content = ""
-			if i == 3:
-				content = os.path.basename(file)
-			elif i == 5:
-				content = "By: " + name + " <" + email + ">"
-			elif i == 7:
-				stamp = datetime.datetime.now().strftime("%Y/%M/%d %H:%M:%S")
-				content = "Created: " + stamp + " by " + name
-			elif i == 8:
-				content = "Updated: " + stamp + " by " + name
-			space_after_content = SPACE_BEFORE_ASCII - SPACE_BEFORE_CONTENT - len(content)
-			header += "/*" + " " * SPACE_BEFORE_CONTENT + content + " " * space_after_content + HEADER_ASCII[i] + "*/\n"
-	return header
+ERROR_UNRECOGNIZED_TOKEN = "Error: Unrecognized token"
+ERROR_UNRECOGNIZED_LINE = "Error: Unrecognized line"
+
+
 
 def recursive_c_h_file_search(folder):
 	ls = os.listdir(folder)
@@ -66,6 +40,7 @@ def recursive_c_h_file_search(folder):
 				file = file[2:]
 			files.append(file)
 	return files
+
 
 def get_errors_from_norminette(files):
 	errors = {}
@@ -81,6 +56,10 @@ def get_errors_from_norminette(files):
 		elif line[-8:] == ": Error!":
 			current_file = line[:-8]
 		else:
+			if line.find(ERROR_UNRECOGNIZED_TOKEN) != -1 or line.find(ERROR_UNRECOGNIZED_LINE) != -1:
+				del files[current_file]
+				print(current_file + ": Error: norminette could not parse file. skipping...")
+				continue
 			front, detail = line.split("):")
 			code, position = front.strip().split("(")
 			code = code[7:]
@@ -92,159 +71,7 @@ def get_errors_from_norminette(files):
 			errors[current_file].append({"error_code": code.strip(), "error_msg": detail.strip(), "line": line_number, "column": column_number})
 	return errors
 
-def get_left_white_space(line):
-	tabs = 0
-	non_tabs = 0
-	for c in line:
-		if c == "\t":
-			tabs += 1
-		elif c.isspace():
-			non_tabs += 1
-		else:
-			return (tabs, non_tabs)
-	return (tabs, non_tabs)
 
-def norm_file(path, errors_before):
-	with open(path, "r", encoding="utf-8") as f:
-		orig = f.read()
-	file = orig.split("\n")
-
-	# delete empty lines on start
-	for index, line in enumerate(file):
-		if line != "":
-			break ;
-		del file[index]
-	
-
-	# extract header
-	header = ""
-
-	if sum([1 for line in file[:11] if line[:2] == "/*" and line[-2:] == "*/"]) == 11:
-		if file[8].find("########.fr       ") != -1:
-			header = file[:11]
-			file = file[11:]
-	
-	header = "\n".join(header) + "\n"
-
-	previous = None
-	next = None
-	lines = len(file)
-	brackets = 0
-	in_function = False
-	after_variable_block = False
-	in_enum = False
-	in_struct = False
-	in_union = False
-	in_typedef = False
-	in_one_line_block = False
-
-
-
-	# check all other problems
-	for index, current in enumerate(file):
-		# remove all white space from end of line
-		line = current.strip()
-		if line != "":
-			line = "\t" * brackets + current.strip()
-		# check that there are only tabs as indent
-		# lspace = get_left_white_space(line)
-		# total_indent = (lspace[0] + int(lspace[1] / 4))
-		# if lspace[1] > 0:
-		# 	line = "\t" * (lspace[0] + int(lspace[1] / 4)) + line.strip()
-		# check that all curly braces are on their own line
-		if line.find("{") != -1:
-			if line.strip() != "{":
-				line = line.split("{", 1)
-				file.insert(index + 1, "\t" * total_indent + "{")
-				if (line[1] != ""):
-					file.insert(index + 2, "\t" * (total_indent + 1) + line[1])
-				line = line[0]
-		if line.find("}") != -1:
-			if line.strip() != "}" and not in_typedef:
-				line = line.split("}", 1)
-				file.insert(index + 1, "\t" * max(total_indent - 1, 0) + "}")
-				if (line[1] != ""):
-					file.insert(index + 2, "\t" * total_indent + line[1])
-				line = line[0]
-
-
-
-		if previous is not None and len(previous) > 0 and previous[0] == "}":
-			in_function = False
-			in_struct = False
-			in_enum = False
-			in_union = False
-			in_typedef = False
-
-		if index < lines - 1:
-			next = file[index + 1].rstrip()
-		else:
-			next = None
-
-		if in_one_line_block:
-			in_one_line_block = False
-			brackets -= 1
-		if [key for key in ["if (", "while (", "if(", "while(", "else if"] if line.lstrip()[:len(key)] == key] != []:
-			if next.strip() != "{":
-				in_one_line_block = True
-				brackets += 1
-		elif line.strip() == "{":
-			brackets += 1
-		if next is not None and len(next.strip()) > 0 and next.strip()[0] == "}":
-			brackets = max(brackets - 1, 0)
-
-		# if next.strip() == "{"
-
-
-		# remove consecutive newlines
-		if line == "" and (previous == "" or previous == "\n"):
-			line = "\n"
-
-		line_new = []
-		pc = ""
-		# remove consecutive spaces
-		for c in line:
-			if c == " " and pc == " ":
-				pass
-			else:
-				line_new.append(c)
-			pc = c
-		line = "".join(line_new)
-		
-		
-		#check all but last
-		if next is not None:
-			# remove whitespace at beginning of block
-			if previous == "{":
-				if line == "":
-					line = "\n"
-
-			#check for brackets around return
-			# check for space after keyword
-			if (keyword := [key for key in ["if", "while", "else if", "return"] if line.lstrip()[:len(key) + 1] == key + "("]) != []:
-				keyword = keyword[0]
-				line = line.split(keyword, 1)
-				line = (keyword + " ").join(line)
-			if (keyword := [key for key in ["break"] if line.lstrip()[:len(key) + 1] == key + ";"]) != []:
-				keyword = keyword[0]
-				line = line.split(keyword, 1)
-				line = (keyword + " ").join(line)
-		# check last line
-		if next is None:
-			if line.strip() == "}":
-				file.append("")
-
-		previous = current
-		file[index] = line
-	
-	file = [line for line in file if line != "\n"]
-	file = "\n".join(file)
-	if len(file) != 0 and file[0] != "\n":
-		file = "\n" + file
-	if header + file != orig or [error for error in errors_before[path] if error["error_code"] == "INVALID_HEADER"] != []:
-		header = create_header(path, NAME, EMAIL)
-		with open(path, "w", encoding="utf-8") as f:
-			f.write(header + file)
 
 if __name__ == "__main__":
 	files = sys.argv[1:]
