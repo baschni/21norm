@@ -7,6 +7,7 @@ ERROR_UNRECOGNIZED_LINE = "Error: Unrecognized line"
 ERROR_NESTED_BRACKETS = "Error: Nested parentheses, braces or brackets are not correctly closed"
 ERROR_EXTRA_TOKEN_ENDIF = "Extra tokens at end of #endif directive"
 ERROR_STRING_LITERAL_UNTERMINATED = "String literal unterminated"
+#Error: keybindings.json is not valid C or C header file
 
 def get_errors_from_norminette(files: List[str]):
 	errors = {}

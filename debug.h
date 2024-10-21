@@ -1,30 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map.h                                              :+:      :+:    :+:   */
+/*   debug.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/12 19:02:58 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/18 19:30:28 by baschnit         ###   ########.fr       */
+/*   Created: 2024/10/18 19:27:07 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/22 01:30:40 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MAP_H
-# define MAP_H
+#ifndef DEBUG_H
+# define DEBUG_H
 
-typedef struct s_map
-{
-	int	width;
-	int	height;
-	int	*z;
-}	t_map;
+# include "libft.h"
+# include "scene.h"
+# include "map.h"
 
-t_map	*read_map(char *filename);
+void	print_scene(t_scene *scene);
+void	print_edges2d(t_list *edges);
+void	print_edges3d(t_list *edges);
+void	print_map(t_map *map);
 
-void	m_free(t_map *map);
-int		m_get_z(t_map *map, int x, int y);
-int		*m_get_z_ptr(t_map *map, int x, int y);
-void	m_set_z(t_map *map, int x, int y, int z);
+typedef t_list	t_elist;
 
 #endif

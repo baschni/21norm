@@ -159,9 +159,10 @@ def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents
 		indent = get_indent_of_variable_block(line_index, lines)
 		line = set_indent_of_var_declr(line, indent)
 	
-	
-	if positional["typedef"] and line[0] == "}":
+	if  positional["typedef"] and line[0] == "}":
 		line = line[0] + "\t" + line[2:]
+	elif line[:len("typedef")] == "typedef" and line[-1] == ";":
+		line = set_indent_of_var_declr(line, 0)
 
 	if path[-2:] == ".h" and indent_level == 0 and line[-1:] == ";" and find_outside_quotes("(", line) != -1:
 		line = set_indent_of_function_declr(line, header_prototype_indents)

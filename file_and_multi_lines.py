@@ -125,9 +125,10 @@ def check_include_guards(new_file: str, path: str):
 	
 	guard_name = get_include_guard_name(path)
 
-	if file[0][:len("#ifndef ")] == "#ifndef " and file[1][:len("# define ")] == "# define " and file[-1] == "#endif":
+	if file[0][:len("#ifndef ")] == "#ifndef " and file[1][:len("# define ")] == "# define " and (file[-1] == "#endif" or file[-1] == "# endif"):
 		file[0] = f"#ifndef {guard_name}"
 		file[1] = f"# define {guard_name}"
+		file[-1] = "#endif"
 		return ("\n" + "\n".join(file))
 	else:
 		return "\n" + f"#ifndef {guard_name}\n" + f"# define {guard_name}\n" + new_file + "\n\n#endif"

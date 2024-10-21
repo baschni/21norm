@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 09:45:35 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/21 09:45:35 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 13:01:59 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	v_set_x(t_vect *vect, double x)
 	*vect->values = x;
 }
 
-void	v_set_y(t_vect *vect, double y)
+void v_set_y(t_vect *vect, double y)
 {
 	*(vect->values + 1) = y;
 }

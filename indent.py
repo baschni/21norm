@@ -9,7 +9,7 @@ def get_indent_of_prototypes_in_h_file(file):
 		elif find_outside_quotes("}", line) != -1:
 			brackets = max(0, brackets - 1)
 		
-		if brackets == 0 and line.strip()[-1:] == ";":
+		if brackets == 0 and line.strip()[-1:] == ";" and line.strip()[:len("typedef")] != "typedef":
 			indents.append(get_indent_of_function_declr(line))
 	return max(indents)
 
