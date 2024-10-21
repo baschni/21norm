@@ -32,7 +32,7 @@ def recursive_c_h_file_search(folder):
 	for file in ls:
 		if os.path.isdir(file) and not os.path.islink(file):
 			files = [*files, *recursive_c_h_file_search(os.path.join(folder, file))]
-		elif(file[-2:] == ".c" or file[-2] == ".h"):
+		elif(file[-2:] == ".c" or file[-2:] == ".h"):
 			file = os.path.join(folder, file)
 			if file[:2] == "./":
 				file = file[2:]
@@ -54,6 +54,7 @@ if __name__ == "__main__":
 	if files == []:
 		files = recursive_c_h_file_search(".")
 
+	print(files)
 	errors_before = get_errors_from_norminette(files)
 	for file in files:
 		if file in errors_before:

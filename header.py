@@ -6,7 +6,7 @@
 #    By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/20 20:40:52 by baschnit          #+#    #+#              #
-#    Updated: 2024/10/21 02:59:09 by baschnit         ###   ########.fr        #
+#    Updated: 2024/10/21 06:00:13 by baschnit         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -67,8 +67,8 @@ def extract_header(lines):
 			if pos_created != -1 and pos_created_by != -1 and len(lines[7]) == 80:
 				pos_created = pos_created + len("Created: ")
 				pos_created_by_user = pos_created_by + len(" by ")
-				created_date = lines[7][pos_created:pos_created_by]
-				created_user = lines[7][pos_created_by_user:56].strip()
+				created_date = lines[7][pos_created:pos_created_by].strip()
+				created_user = lines[7][pos_created_by_user:55].strip()
 				header = lines[:11]
 				lines_after_header = lines[11:]
 				header = "\n".join(header) + "\n"

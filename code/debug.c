@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   debug.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 05:30:45 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/21 07:45:20 by baschnit         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <math.h>
@@ -10,20 +22,16 @@
 
 void	print_map(t_map *map)
 {
-	int		row;
-	int		col;
-	//char	*nbr_str;
-	int		*current;
-	
+	int	row;
+	int	col;
+	int	*current;
+
 	row = 0;
 	col = 0;
 	current = map->z;
 	while (row < map->height)
 	{
-		//nbr_str = ft_itoa(*current);
 		printf("%4i", *current);
-		//ft_putstr_fd(nbr_str, STDOUT_FILENO);
-		//free(nbr_str);
 		if ((++col) == map->width)
 		{
 			printf("\n");
@@ -35,11 +43,11 @@ void	print_map(t_map *map)
 	}
 }
 
-void print_edges3d(t_list *edges)
+void	print_edges3d(t_list *edges)
 {
-	t_edge *edge;
+	t_edge	*edge;
 
-	while(edges)
+	while (edges)
 	{
 		edge = (t_edge *) edges->content;
 		printf("(%.0f %.0f %.0f) -> (%.0f %.0f %.0f)\n", v_x(edge->start), v_y(edge->start), v_z(edge->start), v_x(edge->end), v_y(edge->end), v_z(edge->end));
@@ -47,11 +55,11 @@ void print_edges3d(t_list *edges)
 	}
 }
 
-void print_edges2d(t_list *edges)
+void	print_edges2d(t_list *edges)
 {
-	t_edge *edge;
+	t_edge	*edge;
 
-	while(edges)
+	while (edges)
 	{
 		edge = (t_edge *) edges->content;
 		printf("(%.0f %.0f) -> (%.0f %.0f)\n", v_x(edge->start), v_y(edge->start), v_x(edge->end), v_y(edge->end));
@@ -59,7 +67,7 @@ void print_edges2d(t_list *edges)
 	}
 }
 
-void print_scene(t_scene *scene)
+void	print_scene(t_scene *scene)
 {
 	printf("camera\n");
 	printf("=============================================\n");

@@ -1,20 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   vector6.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 05:30:38 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/21 07:42:47 by baschnit         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "vector.h"
 
-void v_set_x(t_vect *vect, double x)
+void	v_set_x(t_vect *vect, double x)
 {
 	*vect->values = x;
 }
 
-void v_set_y(t_vect *vect, double y)
+void	v_set_y(t_vect *vect, double y)
 {
 	*(vect->values + 1) = y;
 }
 
-void v_set_z(t_vect *vect, double z)
+void	v_set_z(t_vect *vect, double z)
 {
 	*(vect->values + 2) = z;
 }
-
 
 t_vect	*v_new2d_normed(double x, double y)
 {

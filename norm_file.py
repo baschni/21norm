@@ -1,9 +1,9 @@
-
 from file_and_multi_lines import read_file_and_split_into_stripped_lines, join_multi_lines, split_multi_lines
 from brackets_quotes_comments import find_outside, find_outside_quotes, \
 	check_for_comments, get_markers_count, NO_OTHERS_INSIDE
 from header import extract_header
 from config import NAME, USER, EMAIL
+from indent import set_indent_of_function_declr, set_indent_of_var_declr, get_indent_of_variable_block, get_indent_of_prototypes_in_h_file
 
 FIND_OUTSIDE_QUOTES = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)]
 FIND_OPEN_CURLY_BRACKETS = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE), ("{", "}")]
@@ -37,8 +37,8 @@ def split_line_if_has_wrapping_curly_brackets(index, line, lines, in_typedef):
 				line = line.split("{", 1)
 				lines.insert(index + 1, "{")
 				if (line[1] != ""):
-					lines.insert(index + 2, line[1])
-				line = line[0]
+					lines.insert(index + 2, line[1]).strip()
+				line = line[0].strip()
 				
 	if ((first_curly := find_outside("}", line, FIND_OUTSIDE_QUOTES))) != -1:
 		if get_markers_count(first_curly, line, FIND_OPEN_ROUND_BRACKETS)[("(", ")")] == 0:
@@ -46,8 +46,8 @@ def split_line_if_has_wrapping_curly_brackets(index, line, lines, in_typedef):
 				line = line.split("}", 1)
 				lines.insert(index + 1, "}")
 				if (line[1] != ""):
-					lines.insert(index + 2, line[1])
-				line = line[0]
+					lines.insert(index + 2, line[1]).strip()
+				line = line[0].strip()
 	return line
 
 def get_indentation_level_for_current_line(previous_line, markers_count, current_line, positional):
@@ -56,7 +56,7 @@ def get_indentation_level_for_current_line(previous_line, markers_count, current
 		markers_count[("'", "'", NO_OTHERS_INSIDE)] = 0
 	markers_count = get_markers_count(None, previous_line, FIND_OPEN_CURLY_BRACKETS, markers_count)
 	indentation_level = markers_count[("{", "}")]
-	if current_line == "}":
+	if current_line == "}" or (positional["typedef"] and current_line[:1] == "}"):
 			indentation_level -= 1
 	indentation_level += positional["one_line_counter"]
 	return markers_count, indentation_level
@@ -89,14 +89,14 @@ def update_positional(positional, indentation_level, previous_line, current_line
 			positional["function"] = True
 			positional["function_definition"] = True
 
-	if positional["variable_block"] and (current_line == "" \
-									  or find_outside_quotes("=", current_line) != -1 \
-									  or find_outside_quotes("()", current_line) != -1 \
-										or find_outside_quotes("}", current_line) != -1):
-		positional["variable_block"] = False
 	if (positional["function"] or positional["struct"] or positional["union"]) \
 		and indentation_level == 1 and previous_line == "{":
 		positional["variable_block"] = True
+	if positional["variable_block"] and (current_line == "" \
+									  or find_outside_quotes("=", current_line) != -1 \
+									  or find_outside_quotes("(", current_line) != -1 \
+										or find_outside_quotes("}", current_line) != -1):
+		positional["variable_block"] = False
 	
 	if [key for key in ["if (", "while (", "if(", "while(", "else if ", "if ", \
 					 "else", "while "] if current_line[:len(key)] == key] != [] and \
@@ -140,14 +140,27 @@ def check_spaces_after_keywords(current_line):
 	ret_len = len("return ")
 	if current_line[:ret_len] == "return " and current_line[:ret_len + 1] != "return ;":
 		if current_line[ret_len] != "(":
-			ret_index = current_line("return ")
-			current_line = current_line[:ret_index + ret_len] + "(" + current_line[ret_index + ret_len:-1] + ")" + current_line[-1]
+			current_line = current_line[:ret_len] + "(" + current_line[ret_len:-1] + ")" + current_line[-1]
 	# check for space after break keyword
 	if (keyword := [key for key in ["break"] if current_line[:len(key) + 1] == key + ";"]) != []:
 		keyword = keyword[0]
 		current_line = current_line(keyword, 1)
 		current_line = (keyword + " ").join(current_line)
 	return current_line
+
+def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents, path, indent_level):
+	if positional["function_definition"]:
+		line = set_indent_of_function_declr(line)
+
+	if positional["variable_block"]:
+		indent = get_indent_of_variable_block(line_index, lines)
+		line = set_indent_of_var_declr(line, indent)
+
+	if path[-2:] == ".h" and indent_level == 0 and line[-1:] == ";" and find_outside_quotes("(", line) != -1:
+		line = set_indent_of_function_declr(line, header_prototype_indents)
+
+	return line
+
 
 def correct_lines_to_norm(lines, path):
 	lines_corrected = []
@@ -159,14 +172,16 @@ def correct_lines_to_norm(lines, path):
 	next_line = ""
 
 	positional = initiate_positional()
-	if path[:-2] == ".h":
-		header_prototype_indents = get_indent_of_prototypes_in_h_file(file)
+	if path[-2:] == ".h":
+		header_prototype_indents = get_indent_of_prototypes_in_h_file(lines)
 	else:
 		header_prototype_indents = 0
 
 
 	for index, line in enumerate(lines):
+		# do not manipulate lines with comments
 		if sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
+			lines_corrected.append(line)
 			continue
 		line = split_line_if_has_wrapping_curly_brackets(index, line, lines, positional["typedef"])
 
@@ -178,6 +193,7 @@ def correct_lines_to_norm(lines, path):
 		
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line)
 		line = remove_invalid_tabs(line, positional)
+		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
 
 		line = check_spaces_after_keywords(line)
 
@@ -185,7 +201,3 @@ def correct_lines_to_norm(lines, path):
 		previous_line = line
 	
 	return lines_corrected
-
-
-
-# 

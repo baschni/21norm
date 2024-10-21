@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/12 14:22:35 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/18 19:33:51 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 07:49:26 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,6 @@ t_map	*read_splits_to_map(t_list **splits, t_map *map)
 	ft_lstclear(splits, ft_free_split);
 	return (map);
 }
-
 
 // check if read had any errors if not assume that NULL is because the file terminated (could also be memory allocation error!)
 //transform list to map

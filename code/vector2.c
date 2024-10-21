@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/12 18:48:17 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/12 18:48:18 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 07:45:22 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,17 +37,17 @@ t_vect	*v_new3d(double x, double y, double z)
 	return (new);
 }
 
-double v_x(t_vect *vect)
+double	v_x(t_vect *vect)
 {
 	return (*vect->values);
 }
 
-double v_y(t_vect *vect)
+double	v_y(t_vect *vect)
 {
 	return (*(vect->values + 1));
 }
 
-double v_z(t_vect *vect)
+double	v_z(t_vect *vect)
 {
 	return (*(vect->values + 2));
 }

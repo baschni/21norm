@@ -1,12 +1,13 @@
+from brackets_quotes_comments import find_outside_quotes
+
 def get_indent_of_prototypes_in_h_file(file):
 	brackets = 0
-	indents = []
+	indents = [0]
 	for line in file:
-		for c in line:
-			if c == "{":
-				brackets += 1
-			elif c == "}":
-				brackets = max(0, brackets - 1)
+		if find_outside_quotes("{", line) != -1:
+			brackets += 1
+		elif find_outside_quotes("}", line) != -1:
+			brackets = max(0, brackets - 1)
 		
 		if brackets == 0 and line.strip()[-1:] == ";":
 			indents.append(get_indent_of_function_declr(line))
@@ -32,17 +33,46 @@ def get_indent_of_variable_block(line_index, lines):
 		indents.append(get_indent_of_var_declr(line))
 	return max(indents)
 
-def set_indent_of_function_declr(line, indent):
+def set_indent_of_function_declr(line, indent = 0):
 	split = line.split("(", 1)
-	indented = set_indent_of_var_declr(split[0] + ";")
-	return indented[:-1] + "(" + split[1]
+	indented = set_indent_of_var_declr(split[0], indent)
+	return indented + "(" + split[1]
 
 def get_indent_of_function_declr(line):
 	first = line.strip().split("(", 1)[0]
-	return get_indent_of_function_declr(first + ";")
+	return get_indent_of_var_declr(first)
 
 def get_indent_of_var_declr(line):
-	pass
+	line_len = len(line)
+	index_second = -1
+	len_first = -1
+	for index, char in enumerate(reversed(line)):
+		if not char.isspace() and index_second == -1:
+			pass
+		elif char.isspace() and index_second == -1:
+			index_second = line_len - index
+		elif not char.isspace() and index_second != -1:
+			len_first = line_len - index
+			break
+	if len_first == -1 or index_second == 1:
+		return -1
+	indent = int(len_first / 4) + 1
+	return indent
 
-def set_indent_of_var_declr(line):
-	pass
+
+def set_indent_of_var_declr(line, indent):
+	line_len = len(line)
+	index_second = -1
+	len_first = -1
+	for index, char in enumerate(reversed(line)):
+		if not char.isspace() and index_second == -1:
+			pass
+		elif char.isspace() and index_second == -1:
+			index_second = line_len - index
+		elif not char.isspace() and index_second != -1:
+			len_first = line_len - index
+			break
+	if len_first == -1 or index_second == 1:
+		return line
+	line = line[:len_first] + "\t" * max((indent - int(len_first / 4)), 1) + line[index_second:]
+	return (line)

@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/12 14:21:31 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/12 18:56:00 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 06:00:50 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ size_t	ft_split_size(char **split)
 	return (len);
 }
 
-// take from libft
 void	ft_free_split(void *vtable)
 {
 	char	**table;

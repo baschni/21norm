@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   edges_to_screen.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 07:39:58 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/21 07:39:58 by baschnit         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <math.h>
 
 #include "auto_free_fdf.h"
@@ -13,13 +25,13 @@
 // 		return (x);
 // }
 
-t_vect *project_point_to_2d(t_vect *point, t_scene *scene)
+t_vect	*project_point_to_2d(t_vect *point, t_scene *scene)
 {
-	t_list *mem;
-	t_vect *temp;
-	t_vect *point2d;
-	double scale;
-	double ord;
+	t_list	*mem;
+	t_vect	*temp;
+	t_vect	*point2d;
+	double	scale;
+	double	ord;
 
 	if (!fnew(&mem, T_VECT, &point2d, v_empty(2)))
 		return (auto_free(&mem));
@@ -30,12 +42,12 @@ t_vect *project_point_to_2d(t_vect *point, t_scene *scene)
 	scale = scene->width / (tan(scene->angle / 2) * 2 * scale);
 	ord = v_mult(temp,scene->orient_x) * scale + scene->width / 2;
 	v_set_x(point2d, ord);
-    ord = v_mult(temp,scene->orient_y) * scale + scene->height / 2;
+	ord = v_mult(temp,scene->orient_y) * scale + scene->height / 2;
 	v_set_y(point2d, ord);
 	return (auto_free_but_one(&mem, point2d));
 }
 
-t_edge *project_edge_to_2d(t_edge *edge3d, t_scene *scene)
+t_edge	*project_edge_to_2d(t_edge *edge3d, t_scene *scene)
 {
 	t_list	*mem;
 	t_edge	*edge2d;
@@ -60,12 +72,12 @@ t_list	*project_edges_to_viewport(t_scene *scene, t_list *edges3d)
 
 	edges2d = NULL;
 	mem = NULL;
-	while(edges3d)
+	while (edges3d)
 	{
 		edge3d = (t_edge *) edges3d->content;
-		if(!new(&mem, T_EDGE, &edge2d, project_edge_to_2d(edge3d, scene)))
+		if (!new(&mem, T_EDGE, &edge2d, project_edge_to_2d(edge3d, scene)))
 			return (auto_free(&mem));
-		if(!new(&mem, T_LIST_ITEM, &ledge2d, malloc(sizeof(t_list))))
+		if (!new(&mem, T_LIST_ITEM, &ledge2d, malloc(sizeof(t_list))))
 			return (auto_free(&mem));
 		ledge2d->content = edge2d;
 		ft_lstadd_back(&edges2d, ledge2d);

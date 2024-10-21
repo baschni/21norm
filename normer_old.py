@@ -24,42 +24,6 @@ def norm_file_old(path, errors_before):
 
 
 
-		if line_of_function_definition:
-			lsplit = line.split("(", 1)
-			first = lsplit[0]
-			inv = first[::-1]
-			c = ""
-			for i, c in enumerate(inv):
-				if (c.isalnum() or c == "_"):
-					pass
-				elif (c == "*"):
-					break
-				else:
-					break
-			if c == " " or (c == "*" and (i + 1) < len(inv) and inv[i + 1] == " "):
-				fsplit = first.rsplit(" ", 1)
-				line = fsplit[0] + "\t" + fsplit[1] + "(" + lsplit[1]
-				
-
-		# todo: find right amount of indentation of block
-		if in_variable_block:
-			if line[-1:] == ";":
-				inv = line[:-1][::-1]
-				print(line)
-				print (inv)
-				c = ""
-				for i, c in enumerate(inv):
-					if (c.isalnum() or c == "_"):
-						pass
-					elif (c == "*"):
-						break
-					else:
-						break
-				print(c, c == " ", c == "*")
-				if c == " " or (c == "*" and (i + 1) < len(inv) and inv[i + 1] == " "):
-					fsplit = line.rsplit(" ", 1)
-					line = fsplit[0] + "\t" + fsplit[1]
-					print("here!", line)
 
 
 

@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/18 19:13:49 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/18 19:18:32 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 07:49:48 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include <stdio.h>
 
 #include "auto_free.h"
-
 
 /**
  * @brief set a target ptr to a newly allocated memory ptr while registering both in a list
@@ -34,7 +33,7 @@
  * @param void_new 			address returned by malloc upon allocating new memory
  * @return void* 			returns NULL if malloc failed or the address to the
  * 							allocated memory
- */
+*/
 void	*new(t_list **mallocs_history, int type, void *vtarget, void *void_new)
 {
 	t_typed_ptr	*tp_new;
@@ -60,7 +59,6 @@ void	*new(t_list **mallocs_history, int type, void *vtarget, void *void_new)
 	*target = void_new;
 	return (void_new);
 }
-
 
 void	*fnew(t_list **mallocs_history, int type, void *vtarget, void *void_new)
 {

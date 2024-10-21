@@ -12,8 +12,10 @@ def read_file_and_split_into_stripped_lines(path: str):
 		orig = f.read()
 	file = orig.split("\n")
 
+	has_comment = None
 	for index, line in enumerate(file):
-		file[index] = line.strip()
+		if not sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
+			file[index] = line.strip()
 
 	for index, line in enumerate(file):
 		if line != "":
@@ -25,10 +27,11 @@ def read_file_and_split_into_stripped_lines(path: str):
 			break ;
 		del file[len(file) - 1 - index]
 
+	start_len = len(file)
 	next_line = None
 	for index, line in enumerate(reversed(file)):
 		if line == "" and next_line == "":
-			del file[len(file) - index]
+			del file[start_len - index]
 		next_line = line
 
 	return orig, file
@@ -67,13 +70,24 @@ def join_multi_lines(broken_lines) -> List[str]:
 				joined_lines.append(remove_consecutive_spaces(line))
 	return (joined_lines)
 
+def first_non_white_space(line):
+	for index, char in enumerate(line):
+		if not char.isspace():
+			return index
+	return -1
+
 def split_multi_lines(joined_lines):
 	broken_lines = []
 	for line in joined_lines:
 		while (index := find_outside("\\", line, \
 							   [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)])) != -1:
-			broken_lines.append(line[:index + 1])
-			line = line[index + 2:]
+			first_line = line[:index + 1]
+			broken_lines.append(first_line)
+			first_char = first_non_white_space(first_line)
+			if first_char != -1:
+				line = first_line[:first_char] + line[index + 1:]
+			else:
+				lien = line[index + 1:]
 		broken_lines.append(line)
 	return (broken_lines)
 
@@ -98,7 +112,10 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		with open(tmp_file, "w", encoding="utf-8") as f:
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + new_file)
 		error_codes = error_codes_for_file(tmp_file)
-		if not len(error_codes) >= len(errors_before[path]) \
+		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
+		if len(error_codes) == len(errors_before[path]):
+			return
+		if not len(error_codes) > len(errors_before[path]) \
 			and len([code for code in error_codes if code not in error_codes_before]) == 0:
 			header = create_header(path, USER, EMAIL, orig_creation_date, orig_creation_user)
 			with open(path, "w", encoding="utf-8") as f:

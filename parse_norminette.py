@@ -28,13 +28,13 @@ def get_errors_from_norminette(files: List[str]):
 				continue
 			front, detail = line.split("):")
 			code, position = front.strip().split("(")
-			code = code[7:]
+			code = code[7:].strip()
 			position = position.split(",")
 			line_number = int(position[0].split(":")[1].strip())
 			column_number = int(position[1].split(":")[1].strip())
 			if not current_file in errors:
 				errors[current_file] = []
-			errors[current_file].append({"error_code": code.strip(), "error_msg": detail.strip(), "line": line_number, "column": column_number})
+			errors[current_file].append({"error_code": code, "error_msg": detail.strip(), "line": line_number, "column": column_number})
 	return errors
 
 def error_codes_for_file(file):
@@ -63,6 +63,6 @@ def error_codes_for_file(file):
 				continue
 			front, _ = line.split("):")
 			code, _ = front.strip().split("(")
-			code = code[7:]
+			code = code[7:].strip()
 			error_codes.append(code)
 	return error_codes
