@@ -48,14 +48,17 @@ def find_outside_quotes (needle: str, heap: str):
 
 def check_for_comments(line, in_comment):
 	if in_comment is None:
-		in_comment = {"//": False, "/*": False}
+		in_comment = {"//": False, "/*": False, "*/": False}
 	if in_comment["//"]:
 		in_comment["//"] = False
+	if in_comment["*/"]:
+		in_comment["*/"] = False
 	if find_outside("//", line, [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)]) != -1:
 		in_comment["//"] = True
 	if line[:2] == "/*":
 		in_comment["/*"] = True
 	if line[-2:] == "*/":
 		in_comment["/*"] = False
+		in_comment["*/"] = True
 	return in_comment
 

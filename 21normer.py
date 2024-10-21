@@ -1,20 +1,9 @@
 #!python
 
 # todo:
-# check tab before function definition
-# check tab in variable block
 # check newline after variable block
-# check tab after enum union struct typedef
-# check include guards for headers
-# check indent in preprocesser statements after include guard
-# remove tab if not on beginning of line, in variable block or in typedef!
-# problem if lines are broken by \ ?
 # bug: some problems are removed after second run of normer
-# idea: only really change something if norminette gave the line of error of the change?
-# todo: check if after run no new error codes are added to norminette, if yes, do not modify the file
-# bug: problem with indentation with if on multilines
-# todo: when rechecking with norminette on a temp file, for headers the wrong protection name is detected
-# prototypes in c files as well as h files
+
 
 import sys
 import os
@@ -25,11 +14,14 @@ from file_and_multi_lines import read_file_and_split_into_stripped_lines, \
 from header import extract_header
 from norm_file import correct_lines_to_norm
 from parse_norminette import get_errors_from_norminette
+from config import NAME
 
 def recursive_c_h_file_search(folder):
 	ls = os.listdir(folder)
 	files = []
 	for file in ls:
+		if file[:len("." + NAME + ".tmp")] == "." + NAME + ".tmp":
+			continue
 		if os.path.isdir(file) and not os.path.islink(file):
 			files = [*files, *recursive_c_h_file_search(os.path.join(folder, file))]
 		elif(file[-2:] == ".c" or file[-2:] == ".h"):
@@ -54,7 +46,6 @@ if __name__ == "__main__":
 	if files == []:
 		files = recursive_c_h_file_search(".")
 
-	print(files)
 	errors_before = get_errors_from_norminette(files)
 	for file in files:
 		if file in errors_before:

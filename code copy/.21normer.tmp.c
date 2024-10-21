@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   edges_from_map.c                                   :+:      :+:    :+:   */
+/*   .21normer.tmp.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 01:25:44 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/21 09:45:32 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 12:06:44 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,8 @@ int	loop_edges_from_map(t_map *map, t_list **edges)
 
 t_list	*read_edges_from_map(t_map *map)
 {
-	t_list							*edges;
+	t_list	*edges;
+
 	edges = (NULL);
 	if (!loop_edges_from_map(map, &edges))
 	{

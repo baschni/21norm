@@ -5,6 +5,8 @@ from subprocess import check_output, CalledProcessError
 ERROR_UNRECOGNIZED_TOKEN = "Error: Unrecognized token"
 ERROR_UNRECOGNIZED_LINE = "Error: Unrecognized line"
 ERROR_NESTED_BRACKETS = "Error: Nested parentheses, braces or brackets are not correctly closed"
+ERROR_EXTRA_TOKEN_ENDIF = "Extra tokens at end of #endif directive"
+ERROR_STRING_LITERAL_UNTERMINATED = "String literal unterminated"
 
 def get_errors_from_norminette(files: List[str]):
 	errors = {}
@@ -22,6 +24,7 @@ def get_errors_from_norminette(files: List[str]):
 		else:
 			if line.find(ERROR_UNRECOGNIZED_TOKEN) != -1 \
 				or line.find(ERROR_NESTED_BRACKETS) != -1 \
+				or line.find(ERROR_STRING_LITERAL_UNTERMINATED) != -1 \
 				or line.find(ERROR_UNRECOGNIZED_LINE) != -1:
 				files.remove(current_file)
 				print(current_file + ": Error: norminette could not parse file. skipping...")
@@ -60,6 +63,12 @@ def error_codes_for_file(file):
 				continue
 			if line.find(ERROR_NESTED_BRACKETS) != -1:
 				error_codes.append(ERROR_NESTED_BRACKETS)
+				continue
+			if line.find(ERROR_EXTRA_TOKEN_ENDIF) != -1:
+				error_codes.append(ERROR_EXTRA_TOKEN_ENDIF)
+				continue
+			if line.find(ERROR_STRING_LITERAL_UNTERMINATED) != -1:
+				error_codes.append(ERROR_EXTRA_TOKEN_ENDIF)
 				continue
 			front, _ = line.split("):")
 			code, _ = front.strip().split("(")

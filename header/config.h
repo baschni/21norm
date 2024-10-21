@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/18 19:27:10 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/18 19:32:09 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 00:16:21 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 # define INIT_CAM_DIR_X -1
 # define INIT_CAM_DIR_Y 1
-# define INIT_CAM_DIR_Z 2.5
+# define INIT_CAM_DIR_Z -2.5
 
 # define DEFAULT_CAM_Y_ORIENT_X 0
 # define DEFAULT_CAM_Y_ORIENT_Y 0

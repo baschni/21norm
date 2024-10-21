@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/18 19:17:02 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/19 17:23:44 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/18 19:17:29 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@
 
 typedef struct s_typed_ptr
 {
-	int type;
+	int		type;
 	void	**ptr_storage;
 	void	*ptr_malloc;
 }	t_typed_ptr;
 
-void *new(t_list **mallocs_history, int type, void *target, void *void_new);
+void	*new(t_list **mallocs_history, int type, void *target, void *void_new);
 void	*fnew(t_list **mallocs_history, int type, void *target, void *void_new);
 void	*auto_free(t_list **mallocs_history);
 void	*auto_free_but_one(t_list **mallocs_history, void *ptr_to_spare);

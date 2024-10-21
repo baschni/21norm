@@ -3,6 +3,7 @@ from config import NAME, USER, EMAIL
 from brackets_quotes_comments import find_outside, NO_OTHERS_INSIDE, check_for_comments, get_markers_count
 from parse_norminette import error_codes_for_file
 from header import create_header
+import os
 
 def read_file_and_split_into_stripped_lines(path: str):
 	"""	read file, split into lines and remove empty lines
@@ -22,15 +23,19 @@ def read_file_and_split_into_stripped_lines(path: str):
 			break ;
 		del file[index]
 	
+	len_file = len(file)
 	for index, line in enumerate(reversed(file)):
 		if line != "":
 			break ;
-		del file[len(file) - 1 - index]
+		del file[len_file - 1 - index]
 
 	start_len = len(file)
 	next_line = None
 	for index, line in enumerate(reversed(file)):
+		
 		if line == "" and next_line == "":
+			del file[start_len - index]
+		elif line == "{" and next_line == "":
 			del file[start_len - index]
 		next_line = line
 
@@ -91,6 +96,42 @@ def split_multi_lines(joined_lines):
 		broken_lines.append(line)
 	return (broken_lines)
 
+def get_include_guard_name(path: str):
+	name = os.path.basename(path)
+	new = []
+	for c in name:
+		if c.isalpha():
+			new.append(c.capitalize())
+		elif c.isnumeric():
+			new.append(c)
+		else:
+			new.append("_")
+	return ("".join(new))
+
+def check_include_guards(new_file: str, path: str):
+	if path[-2:] != ".h":
+		return new_file
+	file = new_file.split("\n")
+
+	for index, line in enumerate(file):
+		if line != "":
+			break ;
+		del file[index]
+
+	for index, line in enumerate(reversed(file)):
+		if line != "":
+			break ;
+		del file[len(file) - 1 - index]
+	
+	guard_name = get_include_guard_name(path)
+
+	if file[0][:len("#ifndef ")] == "#ifndef " and file[1][:len("# define ")] == "# define " and file[-1] == "#endif":
+		file[0] = f"#ifndef {guard_name}"
+		file[1] = f"# define {guard_name}"
+		return ("\n" + "\n".join(file))
+	else:
+		return "\n" + f"#ifndef {guard_name}\n" + f"# define {guard_name}\n" + new_file + "\n\n#endif"
+
 
 def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 							   orig_header, orig_file, orig_creation_date, orig_creation_user):
@@ -110,7 +151,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 	if orig_header + new_file != orig_file or "INVALID_HEADER" in error_codes_before:
 		tmp_file = "." + NAME + ".tmp" + path[-2:]
 		with open(tmp_file, "w", encoding="utf-8") as f:
-			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + new_file)
+			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + check_include_guards(new_file, tmp_file))
 		error_codes = error_codes_for_file(tmp_file)
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
@@ -119,6 +160,6 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 			and len([code for code in error_codes if code not in error_codes_before]) == 0:
 			header = create_header(path, USER, EMAIL, orig_creation_date, orig_creation_user)
 			with open(path, "w", encoding="utf-8") as f:
-				f.write(header + new_file)
+				f.write(header + check_include_guards(new_file, path))
 		else:
 			print(path + ": Error: " + NAME + " could not parse file. skipping...")

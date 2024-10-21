@@ -23,7 +23,7 @@ def get_indent_of_variable_block(line_index, lines):
 	index = line_index + 1
 	flen = len(lines)
 	cline = lines[index]
-	while index < flen and (cline.strip() != "" or cline.find("}") != -1 or cline.find("(") != -1 or cline.find("=") != -1):
+	while index < flen and (cline.strip() != "" and cline.find("}") == -1 and cline.find("(") == -1 and cline.find("=") == -1):
 		block.append(lines[index])
 		index  += 1
 		if index < flen:

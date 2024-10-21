@@ -6,7 +6,7 @@
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 09:45:31 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/21 09:45:31 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 12:06:43 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 
 void	e_free(void *vedge)
 {
-	t_edge				*edge;
+	t_edge	*edge;
+
 	edge = (t_edge *) vedge;
 	v_free(edge->start);
 	v_free(edge->end);

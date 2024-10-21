@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   .21normer.tmp.c                                    :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 09:52:30 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/21 11:05:09 by baschnit         ###   ########.fr       */
+/*   Updated: 2024/10/21 12:05:55 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	void	*dst;
 
 	if (x < 0 || y < 0)
-		return;
+		return ;
 
 	//printf("x: %i y: %i\n", x, y);
 	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
@@ -75,7 +75,7 @@ void	print_line(t_data *data, int x0, int y0, int x1, int y1, int color)
 			my_mlx_pixel_put(data, x, y, color);
 			y0 < y1 ? y++ : y--;
 		}
-		return;
+		return ;
 	}
 
 	slope = (double) (y1 - y0) / (double) (x1 - x0);
@@ -144,11 +144,10 @@ t_scene	*init_scene(char *file, void *mlx)
 
 int	main(void)
 {
-
-	t_list* mem;
-	t_scene *scene;
-	void *mlx;
-	void *mlx_win;
+	t_list*	mem;
+	t_scene	*scene;
+	void	*mlx;
+	void	*mlx_win;
 
 	char *file = "42.fdf";
 

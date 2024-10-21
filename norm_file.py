@@ -37,7 +37,7 @@ def split_line_if_has_wrapping_curly_brackets(index, line, lines, in_typedef):
 				line = line.split("{", 1)
 				lines.insert(index + 1, "{")
 				if (line[1] != ""):
-					lines.insert(index + 2, line[1]).strip()
+					lines.insert(index + 2, line[1].strip())
 				line = line[0].strip()
 				
 	if ((first_curly := find_outside("}", line, FIND_OUTSIDE_QUOTES))) != -1:
@@ -46,7 +46,7 @@ def split_line_if_has_wrapping_curly_brackets(index, line, lines, in_typedef):
 				line = line.split("}", 1)
 				lines.insert(index + 1, "}")
 				if (line[1] != ""):
-					lines.insert(index + 2, line[1]).strip()
+					lines.insert(index + 2, line[1].strip())
 				line = line[0].strip()
 	return line
 
@@ -62,7 +62,8 @@ def get_indentation_level_for_current_line(previous_line, markers_count, current
 	return markers_count, indentation_level
 
 def update_positional(positional, indentation_level, previous_line, current_line, next_line):
-	if indentation_level == 0 and previous_line is not None and len(previous_line) > 0 and previous_line == "}":
+	if indentation_level == 0 and previous_line is not None	and len(previous_line) > 0 \
+			and (previous_line == "}" or (positional["typedef"] and previous_line[0] == "}")):
 		positional["function"] = False
 		positional["function_definition"] = False
 		positional["variable_block"] = False
@@ -79,7 +80,7 @@ def update_positional(positional, indentation_level, previous_line, current_line
 			or current_line.find("union ") != -1 or current_line.find("enum ") != -1:
 			if current_line.find("typedef ") != -1:
 				positional["typedef"] = True
-			if current_line.find("struct ") != -1:
+			if current_line.find("struct") != -1:
 				positional["struct"] = True
 			elif current_line.find("enum ") != -1:
 				positional["enum"] = True
@@ -110,7 +111,7 @@ def update_positional(positional, indentation_level, previous_line, current_line
 def remove_invalid_tabs(line, positional):
 	line_new = []
 	for c in line:
-		if positional["variable_block"] or positional["typedef"] or positional["function_definition"]:
+		if positional["variable_block"] or (positional["typedef"] and line[-1:] == "}") or positional["function_definition"]:
 			line_new.append(c)
 		elif c == "\t":
 			line_new.append(" ")
@@ -141,6 +142,8 @@ def check_spaces_after_keywords(current_line):
 	if current_line[:ret_len] == "return " and current_line[:ret_len + 1] != "return ;":
 		if current_line[ret_len] != "(":
 			current_line = current_line[:ret_len] + "(" + current_line[ret_len:-1] + ")" + current_line[-1]
+	if current_line == "return;":
+		current_line = "return ;"
 	# check for space after break keyword
 	if (keyword := [key for key in ["break"] if current_line[:len(key) + 1] == key + ";"]) != []:
 		keyword = keyword[0]
@@ -155,12 +158,67 @@ def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents
 	if positional["variable_block"]:
 		indent = get_indent_of_variable_block(line_index, lines)
 		line = set_indent_of_var_declr(line, indent)
+	
+	
+	if positional["typedef"] and line[0] == "}":
+		line = line[0] + "\t" + line[2:]
 
 	if path[-2:] == ".h" and indent_level == 0 and line[-1:] == ";" and find_outside_quotes("(", line) != -1:
 		line = set_indent_of_function_declr(line, header_prototype_indents)
 
 	return line
 
+#todo incorporate * for multiplication and for pointer
+def check_spaces_around_operators(line):
+	line_new = []
+	ppc = ""
+	pc = ""
+	nc = ""
+	# remove consecutive spaces
+	for i, c in enumerate(line):
+		markers_count = get_markers_count(i, line, FIND_OUTSIDE_QUOTES)
+		quotes = sum(markers_count.values())
+		if quotes:
+			line_new.append(c)
+			continue
+		
+		if i < len(line) - 1:
+			nc = line[i + 1]
+		else:
+			nc = ""
+
+		if c == " " and pc == " ":
+			pass
+		elif c == "," and nc != " ":
+			line_new.append(c)
+			line_new.append(" ")
+		elif (c in "+-/*<>!") and nc == "=":
+			if pc != " ":
+				line_new.append(" ")
+			line_new.append(c)
+		elif c == "=":
+			if pc != " " and pc not in "+-/*!=<>":
+				line_new.append(" ")
+			line_new.append(c)
+			if nc != "=" and nc != " ":
+				line_new.append(" ")
+		elif c in ["+", "-", "/"] and \
+		pc != "'" and pc != '"' and nc != "'" and nc != '"' and \
+		not (c == "+" and (pc == "+" or nc == "+")) and \
+		not (c == "-" and ((pc == "-" or nc == "-") or (pc == " " and ppc in "=,") or pc == "")) and \
+		not (c == "/" and (pc == "/" or nc == "/")) and \
+		not (c == "-" and (pc == "(" or nc == ">")):
+					if not pc == " ":
+						line_new.append(" ")
+					line_new.append(c)
+					if not nc == " ":
+						line_new.append(" ")
+		else:
+			line_new.append(c)
+			ppc = pc
+		pc = c
+	line = "".join(line_new)
+	return line
 
 def correct_lines_to_norm(lines, path):
 	lines_corrected = []
@@ -179,6 +237,12 @@ def correct_lines_to_norm(lines, path):
 
 
 	for index, line in enumerate(lines):
+		# adjust macro indent
+		if path[-2:] == ".h" and index > 2 and len(line) >= 2 and line[:1] == "#":
+			if line[1] == "\t":
+				line = line[0] + " " + line[2:]
+			elif not line[1].isspace():
+				line = line[0] + " " + line[1:]
 		# do not manipulate lines with comments
 		if sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
 			lines_corrected.append(line)
@@ -196,8 +260,14 @@ def correct_lines_to_norm(lines, path):
 		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
 
 		line = check_spaces_after_keywords(line)
+		line = check_spaces_around_operators(line)
 
 		lines_corrected = append_to_corrected_lines(line, lines_corrected, indentation_level, next_line)
+		if positional["variable_block"] and positional["function"] and (next_line != "" \
+									  and (find_outside_quotes("=", next_line) != -1 \
+									  or find_outside_quotes("(", next_line) != -1 \
+										or find_outside_quotes("}", next_line) != -1)):
+			lines_corrected.append("")
 		previous_line = line
 	
 	return lines_corrected
