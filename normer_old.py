@@ -5,10 +5,7 @@ def norm_file_old(path, errors_before):
 	# extract header
 
 
-	if path[:-2] == ".h":
-		header_prototype_indents = get_indent_of_prototypes_in_h_file(file)
-	else:
-		header_prototype_indents = 0
+
 		
 
 	lines = len(file)
@@ -64,19 +61,6 @@ def norm_file_old(path, errors_before):
 					line = fsplit[0] + "\t" + fsplit[1]
 					print("here!", line)
 
-
-
-
-		if line != "":
-			line = "\t" * brackets + line
-
-		# increase or decrease function definition
-		one_line = line if not in_multi_line else multi_lines[0]
-		if in_one_line_block:
-			if not in_multi_line or [key for key in ["if (", "while (", "if(", "while(", "else if ", "if ", "else", "while "] if one_line.lstrip()[:len(key)] == key] == []:
-				in_one_line_block = False
-				brackets = max(brackets - one_line_counter, 0)
-				one_line_counter = 0
 
 
 
@@ -141,22 +125,7 @@ def norm_file_old(path, errors_before):
 					line = "\n"
 
 			#check for brackets around return
-			# check for space after keyword
-			if (keyword := [key for key in ["if", "while", "else if", "return"] if line.lstrip()[:len(key) + 1] == key + "("]) != []:
-				keyword = keyword[0]
-				line = line.split(keyword, 1)
-				line = (keyword + " ").join(line)
-			# check for return parentheses
-			ret_len = len("return ")
-			if line.lstrip()[:ret_len] == "return " and line.lstrip()[:ret_len + 1] != "return ;":
-				if line.lstrip()[ret_len] != "(":
-					ret_index = line.find("return ")
-					line = line[:ret_index + ret_len] + "(" + line[ret_index + ret_len:-1] + ")" + line[-1]
-			# check for space after break keyword
-			if (keyword := [key for key in ["break"] if line.lstrip()[:len(key) + 1] == key + ";"]) != []:
-				keyword = keyword[0]
-				line = line.split(keyword, 1)
-				line = (keyword + " ").join(line)
+
 */
 
 	

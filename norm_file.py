@@ -118,7 +118,38 @@ def remove_invalid_tabs(line, positional):
 			line_new.append(c)
 	return "".join(line_new)
 
-def correct_lines_to_norm(lines):
+def append_to_corrected_lines(line, lines_corrected, indentation_level, next_line):
+	if line != "":
+		line = "\t" * indentation_level + line
+	lines_corrected.append(line)
+
+	# check for newline after } at EOF
+	if next_line is None:
+		if line.strip() == "}":
+			lines_corrected.append("")
+	
+	return lines_corrected
+
+def check_spaces_after_keywords(current_line):
+	# check for space after keyword
+	if (keyword := [key for key in ["if", "while", "else if", "return"] if current_line[:len(key) + 1] == key + "("]) != []:
+		keyword = keyword[0]
+		current_line = current_line.split(keyword, 1)
+		current_line = (keyword + " ").join(current_line)
+	# check for return parentheses
+	ret_len = len("return ")
+	if current_line[:ret_len] == "return " and current_line[:ret_len + 1] != "return ;":
+		if current_line[ret_len] != "(":
+			ret_index = current_line("return ")
+			current_line = current_line[:ret_index + ret_len] + "(" + current_line[ret_index + ret_len:-1] + ")" + current_line[-1]
+	# check for space after break keyword
+	if (keyword := [key for key in ["break"] if current_line[:len(key) + 1] == key + ";"]) != []:
+		keyword = keyword[0]
+		current_line = current_line(keyword, 1)
+		current_line = (keyword + " ").join(current_line)
+	return current_line
+
+def correct_lines_to_norm(lines, path):
 	lines_corrected = []
 
 	has_comment = None
@@ -128,6 +159,11 @@ def correct_lines_to_norm(lines):
 	next_line = ""
 
 	positional = initiate_positional()
+	if path[:-2] == ".h":
+		header_prototype_indents = get_indent_of_prototypes_in_h_file(file)
+	else:
+		header_prototype_indents = 0
+
 
 	for index, line in enumerate(lines):
 		if sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
@@ -143,15 +179,9 @@ def correct_lines_to_norm(lines):
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line)
 		line = remove_invalid_tabs(line, positional)
 
-		if line != "":
-			line = "\t" * indentation_level + line
-		lines_corrected.append(line)
+		line = check_spaces_after_keywords(line)
 
-		# check for newline after } at EOF
-		if next_line is None:
-			if line.strip() == "}":
-				lines_corrected.append("")
-		
+		lines_corrected = append_to_corrected_lines(line, lines_corrected, indentation_level, next_line)
 		previous_line = line
 	
 	return lines_corrected

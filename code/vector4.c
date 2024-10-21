@@ -5,20 +5,20 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/22/19 17:22:44 by baschnit          #+#    #+#             */
-/*   Updated: 2024/22/19 17:22:44 by baschnit         ###   ########.fr       */
+/*   Created: 2024/10/12 18:48:13 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/17 20:50:18 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "vector.h"
 
-t_vect	*v_scale(double scale, t_vect* vect)
+t_vect *v_scale(double scale, t_vect* vect)
 {
 	size_t	i;
 	double	*pos_old;
 	double	*pos_new;
 	t_vect	*new;
-
+	
 	new = v_empty(vect->size);
 	if (!new)
 		return (NULL);
@@ -35,7 +35,7 @@ t_vect	*v_scale(double scale, t_vect* vect)
 	return (new);
 }
 
-t_vect	*v_proj(t_vect *distance, t_vect *direction, double *ret_scale)
+t_vect *v_proj(t_vect *distance, t_vect *direction, double *ret_scale)
 {
 	double	scale;
 	t_vect	*scaled;
@@ -43,7 +43,7 @@ t_vect	*v_proj(t_vect *distance, t_vect *direction, double *ret_scale)
 
 	if (v_iszero(direction) || !v_isnormed(direction))
 		return (NULL);
-	scale = v_mult(distance, direction) / v_square(direction);
+	scale = v_mult(distance, direction)/v_square(direction);
 	if (ret_scale)
 		*ret_scale = scale;
 	scaled = v_scale(scale, direction);
@@ -54,17 +54,17 @@ t_vect	*v_proj(t_vect *distance, t_vect *direction, double *ret_scale)
 	return (proj);
 }
 
-t_vect	*v_norm(t_vect *to_norm)
+t_vect *v_norm(t_vect *to_norm)
 {
 	size_t	i;
 	double	length;
 	double	*pos_old;
 	double	*pos_new;
 	t_vect	*new;
-
+	
 	length = v_len(to_norm);
 	if (!length)
-		return (v_dupl(to_norm));
+		return v_dupl(to_norm);
 	new = v_empty(to_norm->size);
 	if (!new)
 		return (NULL);
@@ -81,9 +81,11 @@ t_vect	*v_norm(t_vect *to_norm)
 	return (new);
 }
 
-t_vect	*v_cross(t_vect *a, t_vect *b)
+
+
+t_vect *v_cross(t_vect *a, t_vect *b)
 {
-	t_vect	*cross;
+	t_vect *cross;
 
 	cross = v_empty(3);
 	if (!cross)
@@ -94,15 +96,15 @@ t_vect	*v_cross(t_vect *a, t_vect *b)
 	return (cross);
 }
 
-t_vect	*v_cross_normed(t_vect *a, t_vect *b)
+t_vect *v_cross_normed(t_vect *a, t_vect *b)
 {
-	t_vect	*res;
-	t_vect	*res2;
+	t_vect *res;
+	t_vect *res2;
 
 	res = v_cross(a, b);
 	if (!res)
 		return (NULL);
 	res2 = v_norm(res);
 	v_free(res);
-	return (res2);
+	return (res2);	
 }

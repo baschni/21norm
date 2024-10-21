@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/54/19 16:54:28 by baschnit          #+#    #+#             */
-/*   Updated: 2024/54/19 16:54:28 by baschnit         ###   ########.fr       */
+/*   Created: 2024/10/12 14:22:35 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/18 19:33:51 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ t_map	*loop_split(char **split, t_list **splits, t_map *map, int *pos)
 	{
 		nbr = ft_atol(*split);
 		if (!is_number_str(*split) || nbr > INT_MAX || nbr < INT_MIN)
-			return (free_splits_and_map(splits, map, "z - value in file has wrong range or wrong characters"));
+			return (free_splits_and_map(splits, map, "z-value in file has wrong range or wrong characters"));
 		*pos = (int) nbr;
 		split++;
 		pos++;
@@ -102,6 +102,7 @@ t_map	*read_splits_to_map(t_list **splits, t_map *map)
 	ft_lstclear(splits, ft_free_split);
 	return (map);
 }
+
 
 // check if read had any errors if not assume that NULL is because the file terminated (could also be memory allocation error!)
 //transform list to map

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/22/19 17:22:44 by baschnit          #+#    #+#             */
-/*   Updated: 2024/22/19 17:22:44 by baschnit         ###   ########.fr       */
+/*   Created: 2024/10/11 01:25:44 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/18 19:21:12 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,14 @@
 #include "map.h"
 #include "edge.h"
 
-int	add_edge_to_list(t_list **edges, int start[3], int end[3])
+
+int add_edge_to_list(t_list **edges, int start[3], int end[3])
 {
-	t_list	*new;
-	t_edge	*edge;
+	t_list *new;
+	t_edge *edge;
 
 	edge = e_create3d(start, end);
-	if (!edge)
+	if(!edge)
 		return (0);
 	new = ft_lstnew(edge);
 	if (!new)
@@ -45,13 +46,13 @@ int	loop_edges_from_map(t_map *map, t_list **edges)
 	while (row < map->height)
 	{
 		if (col > 0)
-			if (!add_edge_to_list(edges, (int[3]){col - 1, (map->height - row - 1), \
-				*(current - 1) * MAP_Z_SCALE}, (int[3]){col, (map->height - row - 1), *current * MAP_Z_SCALE}))
-					return (0);
+			if(!add_edge_to_list(edges, (int[3]){col - 1, (map->height - row - 1), \
+			*(current - 1) * MAP_Z_SCALE}, (int[3]){col, (map->height - row - 1), *current * MAP_Z_SCALE}))
+				return (0);
 		if (row > 0)
-			if (!add_edge_to_list(edges, (int[3]){col, (map->height - row), \
-				*(current - map->width) * MAP_Z_SCALE}, (int[3]){col, (map->height - row - 1), *current * MAP_Z_SCALE}))
-					return (0);
+			if(!add_edge_to_list(edges, (int[3]){col, (map->height - row), \
+			*(current - map->width) * MAP_Z_SCALE}, (int[3]){col, (map->height - row - 1), *current * MAP_Z_SCALE}))
+				return (0);
 		if ((++col) == map->width)
 			row++;
 		if (col == map->width)
@@ -61,7 +62,9 @@ int	loop_edges_from_map(t_map *map, t_list **edges)
 	return (1);
 }
 
-t_list	*read_edges_from_map(t_map *map)
+
+
+t_list *read_edges_from_map(t_map *map)
 {
 	t_list	*edges;
 	edges = (NULL);
@@ -70,5 +73,5 @@ t_list	*read_edges_from_map(t_map *map)
 		ft_lstclear(&edges, &e_free);
 		return (NULL);
 	}
-	return (edges);
+	return (edges);	
 }

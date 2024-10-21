@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/25/19 17:25:56 by baschnit          #+#    #+#             */
-/*   Updated: 2024/25/19 17:25:56 by baschnit         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <unistd.h>
 #include <math.h>
 #include <stdlib.h>
@@ -31,29 +19,26 @@
 // void m_free(t_map *map);
 // t_list *read_edges_from_map(t_map *map);
 
+
 // int free_cam_map_edges(camp, map, edges2d, edges3d)
-//
-{
-	// error_message("not enough memory...")
-	//
-}
+// {
+// 	error_message("not enough memory...")
+// }
 
-#define ROUND(d) ( (int) ((d) + ((d) > 0 ? 0.5 : - 0.5)) )
+#define ROUND(d) ( (int) ((d) + ((d) > 0 ? 0.5 : -0.5)) )
 
-typedef struct s_data
-{
+typedef struct	s_data {
 	void	*img;
 	void	*addr;
-	int	bits_per_pixel;
-	int	line_length;
-	int	endian;
-
-}
-t_data;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}				t_data;
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	void	*dst;
+
 
 	if (x < 0 || y < 0)
 		return;
@@ -65,12 +50,12 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 
 void	print_line(t_data *data, int x0, int y0, int x1, int y1, int color)
 {
-	double	slope;
-	int	x;
-	int	y;
+	double slope;
+	int x;
+	int y;
 
 	x = x0;
-	y = y0;
+	y = y0;	
 	printf("print line from (%i, %i) to (%i, %i)\n", x0, y0, x1, y1);
 	if (x0 == x1)
 	{
@@ -94,29 +79,30 @@ void	print_line(t_data *data, int x0, int y0, int x1, int y1, int color)
 	}
 }
 
+
 void	render_scene(t_scene *scene)
 {
-	t_list	*edges2d;
+		t_list	*edges2d;
 
 	edges2d = project_edges_to_viewport(scene->edges3d, scene);
 	print_edges2d(edges2d);
 
-	t_data img;
+		t_data	img;
 
 	img.img = mlx_new_image(scene->mlx, scene->width, scene->height);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, 
-	&img.endian);
+	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
+								&img.endian);
 	// my_mlx_pixel_put(&img, 10, 10, 0x00FFFFFF);
 	// my_mlx_pixel_put(&img, 800, 400, 0x00FFFF00);
 	//print_line(&img, 100, 100, 1900, 1000);
-	// print_line(&img, 0, 5, 400, 1000, 0x00FF0000);
-	// print_line(&img, 15, 5, 15, 1000, 0x00FF0000);
+	// print_line(&img, 0, 5,  400, 1000, 0x00FF0000);
+	// print_line(&img, 15, 5,  15, 1000, 0x00FF0000);
 	while (edges2d)
 	{
 		t_edge *edge;
 		edge = edges2d->content;
 		(void) edge;
-		print_line(&img, round(v_x(edge->start)), round(v_y(edge->start)), round(v_x(edge->end)), round(v_y(edge->end)), 0x00FF0000);
+		print_line(&img, round(v_x(edge->start)),  round(v_y(edge->start)), round(v_x(edge->end)),  round(v_y(edge->end)), 0x00FF0000);
 		edges2d = edges2d->next;
 	}
 	// print_square(&img, 500, 500, 501, 501, 0x00FF0000);
@@ -125,7 +111,8 @@ void	render_scene(t_scene *scene)
 	mlx_put_image_to_window(scene->mlx, scene->mlx_win, img.img, 0, 0);
 }
 
-t_scene	*init_scene(char *file, void *mlx)
+
+t_scene *init_scene(char *file, void *mlx)
 {
 	t_list	*mem;
 	t_map	*map;
@@ -144,28 +131,31 @@ t_scene	*init_scene(char *file, void *mlx)
 	print_scene(scene);
 	if (!new(&mem, T_EDGE_LIST, &(scene->edges3d), read_edges_from_map(map)))
 		return (auto_free(&mem));
-	return (auto_free_but_two(&mem, scene, scene->edges3d));
+	return auto_free_but_two(&mem, scene, scene->edges3d);
 }
 
-int	main(void)
+int main(void)
 {
-	t_list*	mem;
-	t_scene	*scene;
-	void	*mlx;
-	void	*mlx_win;
 
+
+	t_list*		mem;
+	t_scene		*scene;
+	void		*mlx;
+	void		*mlx_win;
+
+	
 	char *file = "42.fdf";
 
 	if (!fnew(&mem, T_MLX, &mlx, mlx_init()))
-		return (int_error(auto_free(&mem)));
-	if (!new(&mem, T_SCENE, &scene, init_scene(file, mlx)))
-		return (int_error(auto_free(&mem)));
+		return int_error(auto_free(&mem));
+	if (!new(&mem, T_SCENE, &scene,	init_scene(file, mlx)))
+		return int_error(auto_free(&mem));
 	if (!new(&mem, T_WINDOW, &mlx_win, mlx_new_window(mlx, scene->width, \
 		scene->height, "fdf")))
-			return (int_error(auto_free(&mem)));
+		return int_error(auto_free(&mem));
 	scene->mlx_win = mlx_win;
 	// if (!connect_events(mlx_win, scene))
-	// return int_error(auto_free(&mem));
+	// 	return int_error(auto_free(&mem));
 	render_scene(scene);
 	mlx_loop(mlx);
 	auto_free(&mem);

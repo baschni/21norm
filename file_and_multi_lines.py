@@ -99,7 +99,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + new_file)
 		error_codes = error_codes_for_file(tmp_file)
 		if not len(error_codes) >= len(errors_before[path]) \
-			and len(code for code in error_codes if code not in error_codes_before) == 0:
+			and len([code for code in error_codes if code not in error_codes_before]) == 0:
 			header = create_header(path, USER, EMAIL, orig_creation_date, orig_creation_user)
 			with open(path, "w", encoding="utf-8") as f:
 				f.write(header + new_file)

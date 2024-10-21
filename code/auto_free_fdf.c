@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/17/19 17:17:50 by baschnit          #+#    #+#             */
-/*   Updated: 2024/17/19 17:17:50 by baschnit         ###   ########.fr       */
+/*   Created: 2024/10/17 12:20:17 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/18 19:20:43 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,11 @@
 #include "mlx.h"
 #include "libft.h"
 
-void	free_mlx_window(void *mlx_win, t_list **mallocs_history)
+void free_mlx_window(void *mlx_win, t_list **mallocs_history)
 {
 	t_typed_ptr	*tp;
 	t_list		*list_item;
+
 
 	list_item = *mallocs_history;
 	while (list_item)
