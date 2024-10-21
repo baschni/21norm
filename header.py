@@ -6,7 +6,7 @@
 #    By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/20 20:40:52 by baschnit          #+#    #+#              #
-#    Updated: 2024/10/20 21:59:36 by baschnit         ###   ########.fr        #
+#    Updated: 2024/10/21 02:59:09 by baschnit         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,7 @@ def create_header(filepath, user, email, orig_creation_date, orig_creation_user)
 			elif i == 5:
 				content = "By: " + user + " <" + email + ">"
 			elif i == 7:
-				stamp = datetime.datetime.now().strftime("%Y/%M/%d %H:%M:%S")
+				stamp = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 				if orig_creation_date != "" and orig_creation_user != "":
 					content = "Created: " + orig_creation_date + " by " + orig_creation_user
 				else:

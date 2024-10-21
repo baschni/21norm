@@ -1,3 +1,4 @@
+from typing import List
 from config import NAME, USER, EMAIL
 from brackets_quotes_comments import find_outside, NO_OTHERS_INSIDE, check_for_comments, get_markers_count
 from parse_norminette import error_codes_for_file
@@ -5,7 +6,7 @@ from header import create_header
 
 def read_file_and_split_into_stripped_lines(path: str):
 	"""	read file, split into lines and remove empty lines
-		at start and end
+		at start and end, remove consecutive new lines
 	"""
 	with open(path, "r", encoding="utf-8") as f:
 		orig = f.read()
@@ -23,7 +24,13 @@ def read_file_and_split_into_stripped_lines(path: str):
 		if line != "":
 			break ;
 		del file[len(file) - 1 - index]
-	
+
+	next_line = None
+	for index, line in enumerate(reversed(file)):
+		if line == "" and next_line == "":
+			del file[len(file) - index]
+		next_line = line
+
 	return orig, file
 
 def remove_consecutive_spaces(line):
@@ -36,9 +43,9 @@ def remove_consecutive_spaces(line):
 		else:
 			line_new.append(char)
 		previous_char = char
-	return (line_new)
+	return ("".join(line_new))
 
-def join_multi_lines(broken_lines):
+def join_multi_lines(broken_lines) -> List[str]:
 	joined_lines = []
 	joined_line = ""
 	previous_was_broken = False
@@ -48,16 +55,17 @@ def join_multi_lines(broken_lines):
 		if has_comment["//"] or has_comment["/*"]:
 			joined_lines.append(line)
 			continue
-		if line[:-1] == "\\":
+		if line[-1:] == "\\":
 			joined_line += line
 			previous_was_broken = True
 		else:
 			if previous_was_broken:
 				joined_lines.append(remove_consecutive_spaces(joined_line + line))
 				joined_line = ""
+				previous_was_broken = False
 			else:
 				joined_lines.append(remove_consecutive_spaces(line))
-			previous_was_broken = False
+	return (joined_lines)
 
 def split_multi_lines(joined_lines):
 	broken_lines = []
