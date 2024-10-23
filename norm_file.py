@@ -169,6 +169,61 @@ def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents
 
 	return line
 
+# def check_asterix_after_tab(line):
+# 	line = line.strip()
+# 	ileft = line.find("\t")
+# 	iright = line.rfind("\t") + 1
+# 	left = line[:ileft]
+# 	middle = line[ileft:iright]
+# 	right = line[iright:]
+# 	if left[-1] == "*":
+# 		left = left[:-1]
+# 		right = "*" + right
+# 	return(left + middle + right)
+
+
+def check_asterix_after_space(line, middle_space = None):
+	line = line.strip()
+	begin, end = get_right_space_boundary(line)
+	if begin is None or end is None:
+		return line
+	left = line[:end + 1]
+	middle = line[end + 1:begin + 1]
+	right = line[begin + 1:]
+	if left[-1] == "*":
+		left = left[:-1]
+		right = "*" + right
+	if middle_space is None:
+		return(left + middle + right)
+	else:
+		return(left + middle_space + right)
+
+
+def get_right_space_boundary(text):
+	begin = None
+	end = None
+	for index, c in enumerate(reversed(text)):
+		if begin is None and c.isspace():
+			begin = len(text) - index - 1
+		if begin is not None and not c.isspace():
+			end = len(text) - index - 1
+			break
+	return (begin, end)
+
+def check_right_position_of_asterix(line, positional):
+	if positional["function_definition"]:
+		[left, right] = line.split("(", 1)
+		left = check_asterix_after_space(left, "\t")
+		right = right[:-1]
+		args = right.split(",")
+		args = [check_asterix_after_space(arg, " ") for arg in args]
+		return (left + "(" + ", ".join(args) + ")")
+
+	if positional["variable_block"]:
+		return (check_asterix_after_space(line))
+
+	return line
+
 #todo incorporate * for multiplication and for pointer
 def check_spaces_around_operators(line):
 	line_new = []
@@ -239,7 +294,7 @@ def correct_lines_to_norm(lines, path):
 
 	for index, line in enumerate(lines):
 		# adjust macro indent
-		if path[-2:] == ".h" and index > 2 and len(line) >= 2 and line[:1] == "#":
+		if path[-2:] == ".h"  and len(line) >= 2 and line[:1] == "#":
 			if line[1] == "\t":
 				line = line[0] + " " + line[2:]
 			elif not line[1].isspace():
@@ -258,8 +313,8 @@ def correct_lines_to_norm(lines, path):
 		
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line)
 		line = remove_invalid_tabs(line, positional)
+		line = check_right_position_of_asterix(line, positional)
 		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
-
 		line = check_spaces_after_keywords(line)
 		line = check_spaces_around_operators(line)
 

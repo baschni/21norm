@@ -1,9 +1,8 @@
-#!python
+#!python3
 
 # todo:
-# check newline after variable block
-# bug: some problems are removed after second run of normer
-
+# make normer work with missing semicolon in the end
+# add support for * in function definition or variable declaration and typedef
 
 import sys
 import os
@@ -22,7 +21,7 @@ def recursive_c_h_file_search(folder):
 	for file in ls:
 		if file[:len("." + NAME + ".tmp")] == "." + NAME + ".tmp":
 			continue
-		if os.path.isdir(file) and not os.path.islink(file):
+		if os.path.isdir(os.path.join(folder, file)) and not os.path.islink(os.path.join(folder, file)):
 			files = [*files, *recursive_c_h_file_search(os.path.join(folder, file))]
 		elif(file[-2:] == ".c" or file[-2:] == ".h"):
 			file = os.path.join(folder, file)
@@ -45,12 +44,22 @@ if __name__ == "__main__":
 
 	if files == []:
 		files = recursive_c_h_file_search(".")
+	if files == []:
+		exit()
+	files_orig = files
 
-	errors_before = get_errors_from_norminette(files)
+	errors_before, skipped = get_errors_from_norminette(files)
+	max_indent = 0
+	for file in skipped:
+		max_indent = max(max_indent, int(len("skipped: " + file) / 4) + 2)
+	for file, error in skipped.items():
+		print("skipped " + file + ":" + " " * (max_indent * 4 - len("skipped: " + file)) + error)
 	for file in files:
 		if file in errors_before:
 			norm_file(file, errors_before)
-	errors_after = get_errors_from_norminette(files)
+
+	errors_after, _ = get_errors_from_norminette(files_orig)
 	int_err_before =  sum(len(val) for val in errors_before.values())
 	int_err_after = sum(len(val) for val in errors_after.values())
-	print(f"normer removed {int_err_before - int_err_after} of {int_err_before} violations of the norm!")
+	if int_err_before != 0 or len(skipped) != 0:
+		print(f"\nnormer removed {int_err_before - int_err_after} of {int_err_before} norm errors in {len(errors_before)} files" )

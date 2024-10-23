@@ -1,18 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test2.c                                            :+:      :+:    :+:   */
+/*   .21normer.tmp.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: baschnit <baschnit@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 00:29:43 by baschnit          #+#    #+#             */
-/*   Updated: 2024/10/19 02:37:10 by baschnit         ###   ########.fr       */
+/*   Created: 2024/06/21 10:49:22 by baschnit          #+#    #+#             */
+/*   Updated: 2024/10/23 13:16:49 by baschnit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "dim.h"
+#include <stddef.h>
 
-int	max_left(int table[DIM][DIM], int row);
-int		max_right(int table[DIM][DIM], int row);
-int	max_down(int table[DIM][DIM], int col);
-int	max_up(int table[DIM][DIM], int col);
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
+{
+	unsigned char	*str1;
+	unsigned char	*str2;
+
+	if (n == 0)
+		return (0);
+	str1 = (unsigned char *) s1;
+	str2 = (unsigned char *) s2;
+	while (n > 1 && *str1 && *str2 && *str1 == *str2)
+	{
+		str1++;
+		str2++;
+		n--;
+	}
+	return (*str1 - *str2);
+}
