@@ -1,7 +1,7 @@
 21norm
 =======
 
-[21norm](http://github.com/baschnit/21norm) is a python script which tries to automatically resolve many norm errors issued by [norminette](http://github.com/norminette)
+[21norm](http://github.com/baschni/21norm) is a python script which tries to automatically resolve many norm errors issued by [norminette](https://github.com/42School/norminette)
 
 ## Motivation
 
@@ -15,7 +15,7 @@ It cannot correct the most beautiful norm errors:
 
 ## Warning
 
-[21norm](http://github.com/baschnit/21norm) is experimental. It will overwrite your files. There is a chance that it makes changes that will break your code or might even lead to data loss.
+[21norm](http://github.com/baschni/21norm) is experimental. It will overwrite your files. There is a chance that it makes changes that will break your code or might even lead to data loss.
 I firmly recommend to make a `git add .`, `git commit -m` and `git push` before you run it, so you can return to your old files in case of data loss.
 
 ## Usage
@@ -30,7 +30,7 @@ norminette must be installed and in the path.
 
 ### Download
 
-Clone the git repository [21norm](http://github.com/baschnit/21norm) to a folder, e.g. `/home/<user>/programs/21norm`. Goto `/home/<user>/bin`, create a  symbolic link to the file `21norm.py` in the download folder and make it executable:
+Clone the git repository [21norm](http://github.com/baschni/21norm) to a folder, e.g. `/home/<user>/programs/21norm`. Goto `/home/<user>/bin`, create a  symbolic link to the file `21norm.py` in the download folder and make it executable:
 
 ```
 cd /home/<user>/bin
@@ -82,7 +82,7 @@ If you use VS Code on Windows with WSL (Windows Subsystem for Linux), try this l
 ```
 
 ## Doxygen Comments
-[21norm](http://github.com/baschnit/21norm) will recognize Doxygen Comments in the following format and will try to wrap lines longer than 80 spaces:
+[21norm](http://github.com/baschni/21norm) will recognize Doxygen Comments in the following format and will try to wrap lines longer than 80 spaces:
 ```
 /**
  * @brief sort the items on stack_a using stack_b
@@ -102,4 +102,4 @@ If you use VS Code on Windows with WSL (Windows Subsystem for Linux), try this l
 
 ## See also
 
-If you like [21norm](http://github.com/baschnit/21norm), you might also like [42check](http://github.com/baschnit/42check), which will reformat the output of [norminette](http://github.com/norminette) to make links with line and column numbers work in VS Code.
+If you like [21norm](http://github.com/baschni/21norm), you might also like [42check](http://github.com/baschni/42check), which will reformat the output of [norminette](https://github.com/42School/norminette) to make links with line and column numbers work in VS Code.
