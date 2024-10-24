@@ -38,9 +38,9 @@ ln -s /home/<user>/programs/21norm/21norm.py ./21norm
 chmod 0100 ./21norm
 ```
 
-You can now execute `21norm` in your shell. If not, or if the directory `/home/<user>/bin` should not exist, see the [section below](#custom_bin).
+You can now execute `21norm` in your shell. If not, or if the directory `/home/<user>/bin` should not exist, see the [section below](#Put ~/bin to $PATH).
 
-### Put ~/bin to $PATH {user_bin}
+### Put ~/bin to $PATH
 
 If there is no folder `/home/<user>/bin` create it:
 ```
