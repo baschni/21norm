@@ -81,6 +81,25 @@ If you use VS Code on Windows with WSL (Windows Subsystem for Linux), try this l
 },
 ```
 
+## Doxygen Comments
+[21norm](http://github.com/baschnit/21norm) will recognize Doxygen Comments in the following format and will try to wrap lines longer than 80 spaces:
+```
+/**
+ * @brief sort the items on stack_a using stack_b
+ * 
+ * The idea of double sort is to separate all items into two groups in stack_a
+ * and stack_b (push_half_to_b) which are then put in order concurrently
+ * (stack_a sorted increasingly, stack_b sorted decreasingly) and finally
+ * joined, in order, on stack_a (push_back_to_a). There are to options to
+ * proceed: either push the smallest elements of stack_a to stack_b or the
+ * largest elements. Both variants are tested (op1 and op2 respectively) and are
+ * compared. The variant with the smallest number of oper- ations is returend.
+ * 
+ * @param stack_a stack configuration to bring in order
+ * @return t_ring* list of operations to sort stack_a using stack_b
+*/
+```
+
 ## See also
 
 If you like [21norm](http://github.com/baschnit/21norm), you might also like [42check](http://github.com/baschnit/42check), which will reformat the output of [norminette](http://github.com/norminette) to make links with line and column numbers work in VS Code.

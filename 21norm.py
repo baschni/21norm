@@ -2,18 +2,20 @@
 
 # todo:
 # make normer work with missing semicolon in the end
-# add support for * in function definition or variable declaration and typedef
+# add line wrapping in variable block of doxygen comments
+# NEWLINE_PRECEDES_FUNC        Functions must be separated by a newline
+# output no line break before final line if no norminette or 21norm parsing errors occured
 
 import sys
 import os
 
-from subprocess import check_output, CalledProcessError
 from file_and_multi_lines import read_file_and_split_into_stripped_lines, \
 	join_multi_lines, split_multi_lines, check_and_if_ok_write_file
 from header import extract_header
 from norm_file import correct_lines_to_norm
 from parse_norminette import get_errors_from_norminette
 from config import NAME
+from doxygen import break_doxygen_comments
 
 def recursive_c_h_file_search(folder):
 	ls = os.listdir(folder)
@@ -35,7 +37,8 @@ def norm_file(path, errors):
 	original_header, lines_after_header, orig_creation_date, orig_creation_user = extract_header(list_of_lines)
 	no_multi_lines = join_multi_lines(lines_after_header)
 	normed_lines = correct_lines_to_norm(no_multi_lines, path)
-	with_multi_lines = split_multi_lines(normed_lines)
+	normed_lines2 = break_doxygen_comments(normed_lines)
+	with_multi_lines = split_multi_lines(normed_lines2)
 	check_and_if_ok_write_file(path, with_multi_lines, errors, \
 							original_header, original_file, orig_creation_date, orig_creation_user)
 
