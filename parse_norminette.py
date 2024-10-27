@@ -95,4 +95,5 @@ def error_codes_for_file(file):
 			code, _ = front.strip().split("(")
 			code = code[7:].strip()
 			error_codes.append(code)
+	error_codes.remove("LINE_TOO_LONG")
 	return error_codes
