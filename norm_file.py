@@ -33,21 +33,23 @@ def split_line_if_has_wrapping_curly_brackets(index, line, lines, in_typedef):
 		and not ((first_curly_closed := find_outside("}", line, FIND_OUTSIDE_QUOTES)) != -1 and \
 		first_curly_closed < first_curly):
 		if get_markers_count(first_curly, line, FIND_OPEN_ROUND_BRACKETS)[("(", ")")] == 0:
-			if line != "{" and line[:-1] != ";":
-				line = line.split("{", 1)
-				lines.insert(index + 1, "{")
-				if (line[1] != ""):
-					lines.insert(index + 2, line[1].strip())
-				line = line[0].strip()
+			if line != "{" and line[-1:] != ";":
+				sline = line.split("{", 1)
+				if sline[1].strip()[0] != "\\":
+					lines.insert(index + 1, "{")
+					if (sline[1] != ""):
+						lines.insert(index + 2, sline[1].strip())
+					line = sline[0].strip()
 				
 	if ((first_curly := find_outside("}", line, FIND_OUTSIDE_QUOTES))) != -1:
 		if get_markers_count(first_curly, line, FIND_OPEN_ROUND_BRACKETS)[("(", ")")] == 0:
-			if line != "}" and line[:-1] != ";" and not in_typedef:
-				line = line.split("}", 1)
-				lines.insert(index + 1, "}")
-				if (line[1] != ""):
-					lines.insert(index + 2, line[1].strip())
-				line = line[0].strip()
+			if line != "}" and line[-1:] != ";" and not in_typedef:
+				sline = line.split("}", 1)
+				if sline[0].strip()[-1] != "\\":
+					lines.insert(index + 1, "}")
+					if (sline[1] != ""):
+						lines.insert(index + 2, sline[1].strip())
+					line = sline[0].strip()
 	return line
 
 def get_indentation_level_for_current_line(previous_line, markers_count, current_line, positional):
@@ -56,8 +58,8 @@ def get_indentation_level_for_current_line(previous_line, markers_count, current
 		markers_count[("'", "'", NO_OTHERS_INSIDE)] = 0
 	markers_count = get_markers_count(None, previous_line, FIND_OPEN_CURLY_BRACKETS, markers_count)
 	indentation_level = markers_count[("{", "}")]
-	if current_line == "}" or (positional["typedef"] and current_line[:1] == "}"):
-			indentation_level -= 1
+	if current_line == "}" or (positional["typedef"] and current_line[:1] == "}") or current_line == "};":
+		indentation_level -= 1
 	indentation_level += positional["one_line_counter"]
 	return markers_count, indentation_level
 
@@ -147,7 +149,7 @@ def check_spaces_after_keywords(current_line):
 	# check for space after break keyword
 	if (keyword := [key for key in ["break"] if current_line[:len(key) + 1] == key + ";"]) != []:
 		keyword = keyword[0]
-		current_line = current_line(keyword, 1)
+		current_line = current_line.split(keyword, 1)
 		current_line = (keyword + " ").join(current_line)
 	return current_line
 
@@ -256,7 +258,7 @@ def check_spaces_around_operators(line):
 			if pc != " " and pc not in "+-/*!=<>":
 				line_new.append(" ")
 			line_new.append(c)
-			if nc != "=" and nc != " ":
+			if nc != "=" and nc != " " and nc != ",":
 				line_new.append(" ")
 		elif c in ["+", "-", "/"] and \
 		pc != "'" and pc != '"' and nc != "'" and nc != '"' and \
@@ -272,7 +274,7 @@ def check_spaces_around_operators(line):
 		else:
 			line_new.append(c)
 			ppc = pc
-		pc = c
+		pc = line_new[-1]
 	line = "".join(line_new)
 	return line
 
@@ -312,6 +314,9 @@ def correct_lines_to_norm(lines, path):
 			next_line = None
 		
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line)
+		if positional["function_definition"] and previous_line != "":
+			lines_corrected.append("")
+			previous_line = ""
 		line = remove_invalid_tabs(line, positional)
 		line = check_right_position_of_asterix(line, positional)
 		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)

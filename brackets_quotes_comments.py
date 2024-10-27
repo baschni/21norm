@@ -9,7 +9,7 @@ def get_markers_count(index_to_stop, heap, markers, mcount = None):
 		index_to_stop = len(heap)
 	for index, _ in enumerate(heap):
 		if index == index_to_stop:
-			return mcount;
+			return mcount
 		for marker in markers:
 			no_others_inside = [mcount[markr] for markr in markers \
 					   if len(markr) == 3 and markr[2] == NO_OTHERS_INSIDE and markr != marker]

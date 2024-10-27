@@ -84,16 +84,40 @@ def first_non_white_space(line):
 def split_multi_lines(joined_lines):
 	broken_lines = []
 	for line in joined_lines:
+		additional_indent = -1;
 		while (index := find_outside("\\", line, \
 							   [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)])) != -1:
+			if additional_indent == -1:
+				additional_indent = 0
+			else:
+				if broken_lines[-1][:-1].strip()[-1] == "{":
+					additional_indent += 1
+				elif line.strip()[0] == "}":
+					additional_indent -= 1
+				# print(broken_lines[-1][:-1], additional_indent)
+
 			first_line = line[:index + 1]
-			broken_lines.append(first_line.rstrip())
+			# print(first_line)
+			
+			broken_lines.append("\t" * additional_indent + first_line.rstrip())
 			first_char = first_non_white_space(first_line)
 			if first_char != -1:
 				line = first_line[:first_char] + line[index + 1:].strip()
 			else:
 				line = line[index + 1:].strip()
-		broken_lines.append(line)
+		# first_char = -1
+		# if additional_indent != -1:
+		# 	first_char = first_non_white_space(first_line)
+		# 	print(first_char, additional_indent, first_line)
+		# 	print(line)
+		# if first_char == 0:
+		# 	broken_lines.append(line.strip())
+		# elif first_char != -1:
+		# 	broken_lines.append("\t" * (first_char - additional_indent) + line.strip())
+		# else:
+		# 	broken_lines.append(line.rstrip())
+		broken_lines.append(line.rstrip())
+
 	return (broken_lines)
 
 def get_include_guard_name(path: str):
@@ -154,7 +178,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		with open(tmp_file, "w", encoding="utf-8") as f:
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + check_include_guards(new_file, tmp_file))
 		error_codes = error_codes_for_file(tmp_file)
-		os.remove(tmp_file)
+		#os.remove(tmp_file)
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
 			return

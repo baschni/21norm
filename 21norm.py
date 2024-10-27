@@ -3,8 +3,8 @@
 # todo:
 # make normer work with missing semicolon in the end
 # add line wrapping in variable block of doxygen comments
-# NEWLINE_PRECEDES_FUNC        Functions must be separated by a newline
 # output no line break before final line if no norminette or 21norm parsing errors occured
+# when braces not closed or other norminette parse error, give line of that error (as in 42check)
 
 import sys
 import os
