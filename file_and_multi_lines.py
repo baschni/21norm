@@ -83,7 +83,13 @@ def first_non_white_space(line):
 
 def split_multi_lines(joined_lines):
 	broken_lines = []
+	has_comment = None
 	for line in joined_lines:
+
+		if sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
+			broken_lines.append(line.rstrip())
+			continue
+
 		additional_indent = -1;
 		while (index := find_outside("\\", line, \
 							   [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)])) != -1:
@@ -178,7 +184,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		with open(tmp_file, "w", encoding="utf-8") as f:
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + check_include_guards(new_file, tmp_file))
 		error_codes = error_codes_for_file(tmp_file)
-		os.remove(tmp_file)
+		#os.remove(tmp_file)
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
 			return

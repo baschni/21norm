@@ -46,10 +46,15 @@ def get_indent_of_var_declr(line):
 	line_len = len(line)
 	index_second = -1
 	len_first = -1
+	square_brackets = 0
 	for index, char in enumerate(reversed(line)):
-		if not char.isspace() and index_second == -1:
+		if char == ']':
+			square_brackets += 1
+		elif char == '[':
+			square_brackets -= 1
+		elif not char.isspace() and index_second == -1:
 			pass
-		elif char.isspace() and index_second == -1:
+		elif not square_brackets and char.isspace() and index_second == -1:
 			index_second = line_len - index
 		elif not char.isspace() and index_second != -1:
 			len_first = line_len - index
@@ -64,10 +69,15 @@ def set_indent_of_var_declr(line, indent):
 	line_len = len(line)
 	index_second = -1
 	len_first = -1
+	square_brackets = 0
 	for index, char in enumerate(reversed(line)):
-		if not char.isspace() and index_second == -1:
+		if char == ']':
+			square_brackets += 1
+		elif char == '[':
+			square_brackets -= 1
+		elif not char.isspace() and index_second == -1:
 			pass
-		elif char.isspace() and index_second == -1:
+		elif not square_brackets and char.isspace() and index_second == -1:
 			index_second = line_len - index
 		elif not char.isspace() and index_second != -1:
 			len_first = line_len - index

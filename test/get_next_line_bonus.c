@@ -18,7 +18,7 @@
 #include <fcntl.h>
 // end including only for test
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 size_t	ft_strlen(const char *s);
 char	*ft_strchr(const char *s, int c);
@@ -81,6 +81,7 @@ char	*manage_rest_and_return_newline(t_rlst **rest, char *left_over)
 	*s = '\0';
 	s = join_list_to_str(*rest);
 	free_list(rest);
+	*rest = (NULL);
 	return (s);
 }
 
@@ -93,9 +94,8 @@ char	*read_to_buffer(int fd, t_rlst **rest, char *buffer, char *left_over)
 	while (bytes_read > 0)
 	{
 		buffer[bytes_read] = '\0';
-		add_string_to_back_of_list(rest, buffer);
-		if (!*rest)
-			return (NULL);
+		if (!add_string_to_back_of_list(rest, buffer))
+			return free_list(rest);
 		if (ft_strchr(buffer, '\n'))
 			return (manage_rest_and_return_newline(rest, left_over));
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
@@ -144,16 +144,17 @@ char	*read_to_buffer(int fd, t_rlst **rest, char *buffer, char *left_over)
  */
 char	*get_next_line(int fd)
 {
-	static char		left_over[BUFFER_SIZE];
+	static char		left_over[MAX_OPEN_FILES][BUFFER_SIZE + 1];
 	t_rlst			  *no_newline;
 	char			*buffer;
 	char			*result;
 
 	no_newline = (NULL);
-	if (!add_string_to_back_of_list(&no_newline, left_over))
+	if (!add_string_to_back_of_list(&no_newline, left_over[fd]))
 		return (NULL);
+	left_over[fd][0] = '\0';
 	if (newline_in_list(no_newline))
-		return (manage_rest_and_return_newline(&no_newline, left_over));
+		return (manage_rest_and_return_newline(&no_newline, left_over[fd]));
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer)
 	{
@@ -161,7 +162,7 @@ char	*get_next_line(int fd)
 			return (free_list(&no_newline));
 		return (NULL);
 	}
-	result = read_to_buffer(fd, &no_newline, buffer, left_over);
+	result = read_to_buffer(fd, &no_newline, buffer, left_over[fd]);
 	free(buffer);
 	return (result);
 }
@@ -169,7 +170,7 @@ char	*get_next_line(int fd)
 // int main()
 // {
 //     int fd;
-//     fd = open("giant_line.txt", O_RDONLY);
+//     fd = open("variable_nls.txt", O_RDONLY);
 //     char *line;
 //     while((line = get_next_line(fd)))
 //     {

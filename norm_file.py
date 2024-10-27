@@ -300,13 +300,7 @@ def correct_lines_to_norm(lines, path):
 
 
 	for index, line in enumerate(lines):
-		
-			
-			# if line[1] == "\t":
-			# 	line = line[0] + " " + line[2:]
-			# elif not line[1].isspace():
-			# 	line = line[0] + " " + line[1:]
-		# do not manipulate lines with comments
+
 		if sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
 			lines_corrected.append(line)
 			continue
