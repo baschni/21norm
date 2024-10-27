@@ -149,7 +149,7 @@ def check_include_guards(new_file: str, path: str):
 	
 	guard_name = get_include_guard_name(path)
 
-	if file[0][:len("# ifndef ")] == "# ifndef " and file[1][:len("# define ")] == "# define " and file[-1] == "# endif":
+	if file[0][:len("#ifndef ")] == "#ifndef " and file[1][:len("# define ")] == "# define " and file[-1] == "#endif":
 		file[0] = f"#ifndef {guard_name}"
 		file[1] = f"# define {guard_name}"
 		file[-1] = "#endif"
@@ -171,7 +171,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 	new_file = "\n".join(new_file)
 	if len(new_file) != 0 and new_file[0] != "\n":
 		new_file = "\n" + new_file
-
+	new_file =  check_include_guards(new_file, path)
 	error_codes_before = [error["error_code"] for error in errors_before[path]]
 	if orig_header + new_file != orig_file or "INVALID_HEADER" in error_codes_before:
 		tmp_file = "." + NAME + ".tmp" + path[-2:]
@@ -186,6 +186,6 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 			and len([code for code in error_codes if code not in error_codes_before]) == 0:
 			header = create_header(path, USER, EMAIL, orig_creation_date, orig_creation_user)
 			with open(path, "w", encoding="utf-8") as f:
-				f.write(header + check_include_guards(new_file, path))
+				f.write(header + new_file)
 		else:
 			print(path + ": Error: " + NAME + " could not parse file. skipping...")

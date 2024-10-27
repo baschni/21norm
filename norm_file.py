@@ -154,6 +154,10 @@ def check_spaces_after_keywords(current_line):
 	return current_line
 
 def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents, path, indent_level):
+	if indent_level == 0 and line != "" and line[-1] == ";" and not positional["typedef"] and not positional["struct"] \
+		and not positional["enum"] and not positional["union"]:
+		line = set_indent_of_function_declr(line)
+
 	if positional["function_definition"]:
 		line = set_indent_of_function_declr(line)
 
@@ -292,15 +296,16 @@ def correct_lines_to_norm(lines, path):
 		header_prototype_indents = get_indent_of_prototypes_in_h_file(lines)
 	else:
 		header_prototype_indents = 0
+	header_define_indent = 0
 
 
 	for index, line in enumerate(lines):
-		# adjust macro indent
-		if path[-2:] == ".h"  and len(line) >= 2 and line[:1] == "#":
-			if line[1] == "\t":
-				line = line[0] + " " + line[2:]
-			elif not line[1].isspace():
-				line = line[0] + " " + line[1:]
+		
+			
+			# if line[1] == "\t":
+			# 	line = line[0] + " " + line[2:]
+			# elif not line[1].isspace():
+			# 	line = line[0] + " " + line[1:]
 		# do not manipulate lines with comments
 		if sum((has_comment := check_for_comments(line, has_comment)).values()) > 0:
 			lines_corrected.append(line)
@@ -322,6 +327,16 @@ def correct_lines_to_norm(lines, path):
 		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
 		line = check_spaces_after_keywords(line)
 		line = check_spaces_around_operators(line)
+
+		# adjust macro indent
+		if path[-2:] == ".h"  and len(line) >= 2 and line[:1] == "#":
+			directive = line[1:].strip().split(" ", 1)[0]
+			if directive == "endif":
+				header_define_indent -= 1
+			line = "#" + " " * header_define_indent + line[1:].strip()
+			print(header_define_indent, directive, line)
+			if directive == "ifndef" or directive == "ifdef":
+				header_define_indent += 1
 
 		lines_corrected = append_to_corrected_lines(line, lines_corrected, indentation_level, next_line)
 		if positional["variable_block"] and positional["function"] and (next_line != "" \
