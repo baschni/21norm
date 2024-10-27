@@ -168,7 +168,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 							   orig_header, orig_file, orig_creation_date, orig_creation_user):
 	"""The new file is prepared by joining the normed lines togehter. Some checks are then
 	made:
-	(1) did the norming have any effect (are the new_lines + the original header
+	(1) did the norming not have any effect (are the new_lines + the original header
 	the same as the old file?), then the file needs not be changed.
 	(2) was the header missing before? than (1) will still be true, but the new file
 	will be written with a new header instead of any norming
@@ -184,7 +184,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		with open(tmp_file, "w", encoding="utf-8") as f:
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + check_include_guards(new_file, tmp_file))
 		error_codes = error_codes_for_file(tmp_file)
-		#os.remove(tmp_file)
+		os.remove(tmp_file)
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
 			return

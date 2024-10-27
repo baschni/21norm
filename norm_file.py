@@ -77,6 +77,11 @@ def update_positional(positional, indentation_level, previous_line, current_line
 	if positional["function_definition"]:
 		positional["function_definition"] = False
 
+	if indentation_level == 0 and positional["typedef"] and not positional["struct"]:
+		positional["typedef"] = False
+	if indentation_level == 0 and current_line[:len("typedef ")] == "typedef ":
+		positional["typedef"] = True
+
 	if indentation_level == 0 and next_line is not None and next_line == "{":
 		if current_line.find("typedef ") != -1 or current_line.find("struct ") != -1 \
 			or current_line.find("union ") != -1 or current_line.find("enum ") != -1:
