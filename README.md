@@ -28,9 +28,13 @@ Type `21norm` to norm all *.c and *.h files in the current directory. Type `21no
 
 norminette must be installed and in the path.
 
-### Download
+### Download & Configuration
 
-Clone the git repository [21norm](http://github.com/baschni/21norm) to a folder, e.g. `/home/<user>/programs/21norm`. Goto `/home/<user>/bin`, create a  symbolic link to the file `21norm.py` in the download folder and make it executable:
+Clone the git repository [21norm](http://github.com/baschni/21norm) to a folder, e.g. `/home/<user>/programs/21norm`. In the downloaded folder, edit config.py to change `USER` and `EMAIL` to your username and email, which will be shown in the 42 header.
+
+### Create a symlink
+
+Goto `/home/<user>/bin`, create a symbolic link to the file `21norm.py` in the download folder and make it executable:
 
 ```
 cd /home/<user>/bin

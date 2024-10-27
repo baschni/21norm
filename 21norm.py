@@ -1,10 +1,10 @@
 #!python3
 
 # todo:
-# make normer work with missing semicolon in the end
 # add line wrapping in variable block of doxygen comments
 # output no line break before final line if no norminette or 21norm parsing errors occured
 # when braces not closed or other norminette parse error, give line of that error (as in 42check)
+# debug mode to not delete tmp file
 
 import sys
 import os
