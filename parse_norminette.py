@@ -11,6 +11,7 @@ ERROR_INVALID_PREPROCESSING_DIRECTIVE = "Invalid preprocessing directive"
 ERROR_EXTRA_TOKEN_ENDIF = "Extra tokens at end of #endif directive"
 ERROR_INCLUDE_FILE_ARGUMENT = "Invalid file argument for #include directive"
 
+ERROR_INVALID_MACRO = "Invalid macro function definition"
 ERROR_NO_SUCH_FILE = "no such file or directory"
 ERROR_NO_VALID_C_FILE = "is not valid C or C header file"
 
@@ -89,8 +90,12 @@ def error_codes_for_file(file):
 				error_codes.append(ERROR_EXTRA_TOKEN_ENDIF)
 				continue
 			if line.find(ERROR_STRING_LITERAL_UNTERMINATED) != -1:
-				error_codes.append(ERROR_EXTRA_TOKEN_ENDIF)
+				error_codes.append(ERROR_STRING_LITERAL_UNTERMINATED)
 				continue
+			if line.find(ERROR_INVALID_MACRO) != -1:
+				error_codes.append(ERROR_INVALID_MACRO)
+				continue
+			
 			front, _ = line.split("):")
 			code, _ = front.strip().split("(")
 			code = code[7:].strip()

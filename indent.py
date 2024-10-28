@@ -35,7 +35,6 @@ def get_indent_of_variable_block(line_index, lines):
 
 def set_indent_of_function_declr(line, indent = 0):
 	split = line.split("(", 1)
-	print("splitting", indent, line)
 	indented = set_indent_of_var_declr(split[0], indent)
 	return indented + "(" + split[1]
 
