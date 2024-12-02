@@ -4,7 +4,7 @@ NAME = "21normer"
 NORMINETTE_EXECUTABLE = "norminette"
 
 DEBUG = False
-DEBUG = True
+#DEBUG = True
 # 42 login to use in the header
 USER = "baschnit"
 # 42 email to use in the header

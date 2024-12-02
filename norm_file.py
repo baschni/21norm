@@ -342,7 +342,7 @@ def correct_lines_to_norm(lines, path):
 			previous_line = ""
 		line = remove_invalid_tabs(line, positional)
 		if indentation_level != 0 and line != "" and not positional["enum"]:
-			if (keyword := [key for key in ["if", "while", "else if", "for"] if line[:len(key)] == key]) == []:
+			if (keyword := [key for key in ["if", "while", "else if", "for", "else"] if line[:len(key)] == key]) == []:
 				if line != "{" and line != "}":
 					if line[-1:] != ";":
 						line = line + ";"
