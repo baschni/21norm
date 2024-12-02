@@ -82,7 +82,7 @@ def update_positional(positional, indentation_level, previous_line, current_line
 	if positional["include"]:
 		positional["include"] = False
 
-	if is_header and indentation_level == 0 and current_line != "" and current_line[0] == "#":
+	if indentation_level == 0 and current_line != "" and current_line[0] == "#":
 		if current_line[1:].strip()[:len("include")] == "include":
 			positional["include"] = True
 
@@ -342,6 +342,11 @@ def correct_lines_to_norm(lines, path):
 			lines_corrected.append("")
 			previous_line = ""
 		line = remove_invalid_tabs(line, positional)
+		if indentation_level != 0 and line != "":
+			if (keyword := [key for key in ["if", "while", "else if", "for"] if line[:len(key)] == key]) == []:
+				if line != "{" and line != "}":
+					if line[-1:] != ";":
+						line = line + ";"
 		line = check_right_position_of_asterix(line, positional)
 		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
 		line = check_spaces_after_keywords(line)
