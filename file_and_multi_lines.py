@@ -2,6 +2,7 @@ from typing import List
 from config import NAME, USER, EMAIL
 from brackets_quotes_comments import find_outside, NO_OTHERS_INSIDE, check_for_comments, get_markers_count
 from parse_norminette import error_codes_for_file
+from config import DEBUG
 from header import create_header
 import os
 
@@ -184,7 +185,8 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		with open(tmp_file, "w", encoding="utf-8") as f:
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + check_include_guards(new_file, tmp_file))
 		error_codes = error_codes_for_file(tmp_file)
-		#os.remove(tmp_file)
+		if not DEBUG:
+			os.remove(tmp_file)
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
 			return

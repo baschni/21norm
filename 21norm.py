@@ -1,10 +1,12 @@
-#!python3
+#!/usr/bin/env python3
 
 # todo:
 # add line wrapping in variable block of doxygen comments
+# remove consecutive newlines in header or c file with indent 0
 # output no line break before final line if no norminette or 21norm parsing errors occured
 # when braces not closed or other norminette parse error, give line of that error (as in 42check)
 # debug mode to not delete tmp file
+# bug: char ** splits will be transformed to char * *splits
 
 import sys
 import os

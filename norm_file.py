@@ -18,9 +18,12 @@ def initiate_positional():
 		"last_line_enum_struct_union": False,
 		"typedef": False,
 
+		"include": False,
+
 		"function": False,
 		"function_definition": False,
 		"variable_block": False,
+		"line_after_variable_block": False,
 		
 		"one_line_counter": 0
 		
@@ -62,7 +65,7 @@ def get_indentation_level_for_current_line(previous_line, markers_count, current
 	indentation_level += positional["one_line_counter"]
 	return markers_count, indentation_level
 
-def update_positional(positional, indentation_level, previous_line, current_line, next_line):
+def update_positional(positional, indentation_level, previous_line, current_line, next_line, is_header):
 	if indentation_level == 0 and previous_line is not None	and len(previous_line) > 0 \
 			and (previous_line == "}" or (positional["typedef"] and previous_line[0] == "}")):
 		positional["function"] = False
@@ -72,6 +75,13 @@ def update_positional(positional, indentation_level, previous_line, current_line
 		positional["enum"] = False
 		positional["union"] = False
 		positional["typedef"] = False
+	
+	if positional["include"]:
+		positional["include"] = False
+
+	if is_header and indentation_level == 0 and current_line != "" and current_line[0] == "#":
+		if current_line[1:].strip()[:len("include")] == "include":
+			positional["include"] = True
 
 	if positional["function_definition"]:
 		positional["function_definition"] = False
@@ -96,14 +106,18 @@ def update_positional(positional, indentation_level, previous_line, current_line
 			positional["function"] = True
 			positional["function_definition"] = True
 
+	if positional["line_after_variable_block"]:
+		positional["line_after_variable_block"] = False
 	if (positional["function"] or positional["struct"] or positional["union"]) \
 		and indentation_level == 1 and previous_line == "{":
 		positional["variable_block"] = True
-	if positional["variable_block"] and (current_line == "" \
+	if not is_header and positional["variable_block"] and (current_line == "" \
 									  or find_outside_quotes("=", current_line) != -1 \
 									  or find_outside_quotes("(", current_line) != -1 \
 										or find_outside_quotes("}", current_line) != -1):
 		positional["variable_block"] = False
+		positional["line_after_variable_block"] = True
+
 	
 	if [key for key in ["if (", "while (", "if(", "while(", "else if ", "if ", \
 					 "else", "while "] if current_line[:len(key)] == key] != [] and \
@@ -169,8 +183,8 @@ def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents
 		indent = get_indent_of_variable_block(line_index, lines)
 		line = set_indent_of_var_declr(line, indent)
 	
-	if  positional["typedef"] and line[0] == "}":
-		line = line[0] + "\t" + line[2:]
+	if  positional["typedef"] and line != "" and line[0] == "}":
+		line = line[0] + "\t" + line[1:].strip()
 	elif line[:len("typedef")] == "typedef" and line[-1] == ";":
 		line = set_indent_of_var_declr(line, 0)
 
@@ -315,8 +329,12 @@ def correct_lines_to_norm(lines, path):
 			next_line = lines[index + 1].strip()
 		else:
 			next_line = None
-		
-		positional = update_positional(positional, indentation_level, previous_line, line, next_line)
+
+
+		positional = update_positional(positional, indentation_level, previous_line, line, next_line, path[-2:] == ".h")
+		# remove empty lines in function after variable block
+		if line.strip() == "" and positional["function"] and not positional["line_after_variable_block"]:
+			continue
 		if positional["function_definition"] and previous_line != "":
 			lines_corrected.append("")
 			previous_line = ""
@@ -324,7 +342,10 @@ def correct_lines_to_norm(lines, path):
 		line = check_right_position_of_asterix(line, positional)
 		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
 		line = check_spaces_after_keywords(line)
-		line = check_spaces_around_operators(line)
+		if not positional["include"]:
+			line = check_spaces_around_operators(line)
+
+
 
 		# adjust macro indent
 		if path[-2:] == ".h"  and len(line) >= 2 and line[:1] == "#":
