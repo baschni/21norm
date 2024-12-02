@@ -12,7 +12,7 @@ import sys
 import os
 
 from file_and_multi_lines import read_file_and_split_into_stripped_lines, \
-	join_multi_lines, split_multi_lines, check_and_if_ok_write_file
+	join_multi_lines, split_multi_lines, check_and_if_ok_write_file, check_include_guards
 from header import extract_header
 from norm_file import correct_lines_to_norm
 from parse_norminette import get_errors_from_norminette
@@ -37,8 +37,10 @@ def recursive_c_h_file_search(folder):
 def norm_file(path, errors):
 	original_file, list_of_lines = read_file_and_split_into_stripped_lines(path)
 	original_header, lines_after_header, orig_creation_date, orig_creation_user = extract_header(list_of_lines)
+	
 	no_multi_lines = join_multi_lines(lines_after_header)
-	normed_lines = correct_lines_to_norm(no_multi_lines, path)
+	lines_with_include_guard = check_include_guards(lines_after_header, path)
+	normed_lines = correct_lines_to_norm(lines_with_include_guard, path)
 	normed_lines2 = break_doxygen_comments(normed_lines)
 	with_multi_lines = split_multi_lines(normed_lines2)
 	check_and_if_ok_write_file(path, with_multi_lines, errors, \

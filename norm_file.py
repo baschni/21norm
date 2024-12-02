@@ -37,7 +37,7 @@ def split_line_if_has_wrapping_curly_brackets(index, line, lines, in_typedef):
 		if get_markers_count(first_curly, line, FIND_OPEN_ROUND_BRACKETS)[("(", ")")] == 0:
 			if line != "{" and line[0] != "#" and line[-1:] != ";":
 				sline = line.split("{", 1)
-				if sline[1].strip()[0] != "\\":
+				if sline[1].strip() == "" or sline[1].strip()[0] != "\\":
 					lines.insert(index + 1, "{")
 					if (sline[1] != ""):
 						lines.insert(index + 2, sline[1].strip())
@@ -78,7 +78,6 @@ def update_positional(positional, indentation_level, previous_line, current_line
 		if (current_line == "}" or (positional["typedef"] and current_line[0] == "}")):
 			positional["variable_block"] = False
 			positional["function_definition"] = False
-	
 	if positional["include"]:
 		positional["include"] = False
 
@@ -89,7 +88,7 @@ def update_positional(positional, indentation_level, previous_line, current_line
 	if positional["function_definition"]:
 		positional["function_definition"] = False
 
-	if indentation_level == 0 and positional["typedef"] and not positional["struct"]:
+	if indentation_level == 0 and positional["typedef"] and not positional["struct"] and not positional["enum"]:
 		positional["typedef"] = False
 	if indentation_level == 0 and current_line[:len("typedef ")] == "typedef ":
 		positional["typedef"] = True
@@ -342,7 +341,7 @@ def correct_lines_to_norm(lines, path):
 			lines_corrected.append("")
 			previous_line = ""
 		line = remove_invalid_tabs(line, positional)
-		if indentation_level != 0 and line != "":
+		if indentation_level != 0 and line != "" and not positional["enum"]:
 			if (keyword := [key for key in ["if", "while", "else if", "for"] if line[:len(key)] == key]) == []:
 				if line != "{" and line != "}":
 					if line[-1:] != ";":
@@ -363,13 +362,14 @@ def correct_lines_to_norm(lines, path):
 			line = "#" + " " * header_define_indent + line[1:].strip()
 			if directive == "ifndef" or directive == "ifdef":
 				header_define_indent += 1
-
+		
 		lines_corrected = append_to_corrected_lines(line, lines_corrected, indentation_level, next_line)
 		if positional["variable_block"] and positional["function"] and (next_line != "" \
 									  and (find_outside_quotes("=", next_line) != -1 \
 									  or find_outside_quotes("(", next_line) != -1 \
 										or find_outside_quotes("}", next_line) != -1)):
 			lines_corrected.append("")
+		
 		previous_line = line
 	
 	return lines_corrected
