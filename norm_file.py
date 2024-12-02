@@ -66,15 +66,18 @@ def get_indentation_level_for_current_line(previous_line, markers_count, current
 	return markers_count, indentation_level
 
 def update_positional(positional, indentation_level, previous_line, current_line, next_line, is_header):
-	if indentation_level == 0 and previous_line is not None	and len(previous_line) > 0 \
-			and (previous_line == "}" or (positional["typedef"] and previous_line[0] == "}")):
-		positional["function"] = False
-		positional["function_definition"] = False
-		positional["variable_block"] = False
-		positional["struct"] = False
-		positional["enum"] = False
-		positional["union"] = False
-		positional["typedef"] = False
+	if indentation_level == 0 and previous_line is not None	and len(previous_line) > 0:
+		if (previous_line == "}" or (positional["typedef"] and previous_line[0] == "}")):
+			positional["function"] = False
+			positional["function_definition"] = False
+			positional["variable_block"] = False
+			positional["struct"] = False
+			positional["enum"] = False
+			positional["union"] = False
+			positional["typedef"] = False
+		if (current_line == "}" or (positional["typedef"] and current_line[0] == "}")):
+			positional["variable_block"] = False
+			positional["function_definition"] = False
 	
 	if positional["include"]:
 		positional["include"] = False
