@@ -182,7 +182,7 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 	if orig_header + new_file != orig_file or "INVALID_HEADER" in error_codes_before:
 		tmp_file = "." + NAME + ".tmp" + path[-2:]
 		with open(tmp_file, "w", encoding="utf-8") as f:
-			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) + "\n" +  "\n".join(check_include_guards(new_file.split("\n"), tmp_file)))
+			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) +  "\n".join(check_include_guards(new_file.split("\n"), tmp_file)))
 		error_codes = error_codes_for_file(tmp_file)
 		if not DEBUG:
 			os.remove(tmp_file)

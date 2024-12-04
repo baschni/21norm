@@ -4,6 +4,7 @@ from brackets_quotes_comments import find_outside, find_outside_quotes, \
 from header import extract_header
 from config import NAME, USER, EMAIL
 from indent import set_indent_of_function_declr, set_indent_of_var_declr, get_indent_of_variable_block, get_indent_of_prototypes_in_h_file
+from copy import deepcopy
 
 FIND_OUTSIDE_QUOTES = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)]
 FIND_OPEN_CURLY_BRACKETS = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE), ("{", "}")]
@@ -307,6 +308,7 @@ def correct_lines_to_norm(lines, path):
 
 	has_comment = None
 	markers_count = None
+	previous_markers_count = None
 
 	previous_line = ""
 	next_line = ""
@@ -326,6 +328,7 @@ def correct_lines_to_norm(lines, path):
 			continue
 		line = split_line_if_has_wrapping_curly_brackets(index, line, lines, positional["typedef"])
 
+		previous_markers_count = deepcopy(markers_count)
 		markers_count, indentation_level = get_indentation_level_for_current_line(previous_line, markers_count, line, positional)
 		if index < len(lines) - 1:
 			next_line = lines[index + 1].strip()
@@ -336,6 +339,7 @@ def correct_lines_to_norm(lines, path):
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line, path[-2:] == ".h")
 		# remove empty lines in function after variable block
 		if line.strip() == "" and positional["function"] and not positional["line_after_variable_block"]:
+			markers_count = previous_markers_count
 			continue
 		if positional["function_definition"] and previous_line != "":
 			lines_corrected.append("")
