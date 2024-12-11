@@ -24,6 +24,7 @@ def initiate_positional():
 		"function": False,
 		"function_definition": False,
 		"variable_block": False,
+		"do_not_remove_newlines": False,
 		"line_after_variable_block": False,
 		
 		"one_line_counter": 0
@@ -72,13 +73,15 @@ def update_positional(positional, indentation_level, previous_line, current_line
 			positional["function"] = False
 			positional["function_definition"] = False
 			positional["variable_block"] = False
+			positional["do_not_remove_newlines"] = False
 			positional["struct"] = False
 			positional["enum"] = False
 			positional["union"] = False
 			positional["typedef"] = False
-		if (current_line == "}" or (positional["typedef"] and current_line[0] == "}")):
+		if (current_line == "}" or (current_line != "" and positional["typedef"] and current_line[0] == "}")):
 			positional["variable_block"] = False
 			positional["function_definition"] = False
+			positional["do_not_remove_newlines"] = False
 	if positional["include"]:
 		positional["include"] = False
 
@@ -114,6 +117,11 @@ def update_positional(positional, indentation_level, previous_line, current_line
 	if (positional["function"] or positional["struct"] or positional["union"]) \
 		and indentation_level == 1 and previous_line == "{":
 		positional["variable_block"] = True
+	if not is_header and current_line != "{" and positional["function"] and not positional["function_definition"] and not positional["variable_block"] and (current_line != "" \
+									  and not find_outside_quotes("=", current_line) != -1 \
+									  and not find_outside_quotes("(", current_line) != -1 \
+										and not find_outside_quotes("}", current_line) != -1):
+		positional["do_not_remove_newlines"] = True
 	if not is_header and positional["variable_block"] and (current_line == "" \
 									  or find_outside_quotes("=", current_line) != -1 \
 									  or find_outside_quotes("(", current_line) != -1 \
@@ -338,13 +346,14 @@ def correct_lines_to_norm(lines, path):
 
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line, path[-2:] == ".h")
 		# remove empty lines in function after variable block
-		if line.strip() == "" and positional["function"] and not positional["line_after_variable_block"]:
+		if line.strip() == "" and positional["function"] and not positional["line_after_variable_block"] and not positional["do_not_remove_newlines"]:
 			markers_count = previous_markers_count
 			continue
 		if positional["function_definition"] and previous_line != "":
 			lines_corrected.append("")
 			previous_line = ""
-		line = remove_invalid_tabs(line, positional)
+		if not positional["do_not_remove_newlines"]:
+			line = remove_invalid_tabs(line, positional)
 		if indentation_level != 0 and line != "" and not positional["enum"]:
 			if (keyword := [key for key in ["if", "while", "else if", "for", "else"] if line[:len(key)] == key]) == []:
 				if line != "{" and line != "}":

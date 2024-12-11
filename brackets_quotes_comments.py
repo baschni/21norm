@@ -14,18 +14,19 @@ def get_markers_count(index_to_stop, heap, markers, mcount = None):
 			no_others_inside = [mcount[markr] for markr in markers \
 					   if len(markr) == 3 and markr[2] == NO_OTHERS_INSIDE and markr != marker]
 			if not sum(no_others_inside):
-				if marker[0] == marker[1]:
-					if heap[index:][:len(marker[0])] == marker[0]:
-						if mcount[marker] == 1:
-							mcount[marker] = 0
-						else:
-							mcount[marker] = 1	
-				else:
-					if heap[index:][:len(marker[0])] == marker[0]:
-						mcount[marker] += 1
-					elif heap[index][:len(marker[1])] == marker[1]:
-						mcount[marker] = max(mcount[marker] - 1, 0)
-	return mcount;
+				if index == 0 or heap[index - 1] != "\\" or (index > 1 and heap[index - 1] == "\\" and heap[index - 2] == "\\"):
+					if marker[0] == marker[1]:
+						if heap[index:][:len(marker[0])] == marker[0]:
+							if mcount[marker] == 1:
+								mcount[marker] = 0
+							else:
+								mcount[marker] = 1	
+					else:
+						if heap[index:][:len(marker[0])] == marker[0]:
+							mcount[marker] += 1
+						elif heap[index][:len(marker[1])] == marker[1]:
+							mcount[marker] = max(mcount[marker] - 1, 0)
+	return mcount
 
 def find_outside (needle: str, heap: str, markers):
 	"""searches a needle in heap while checking that
@@ -47,6 +48,22 @@ def find_outside_quotes (needle: str, heap: str):
 	return find_outside(needle, heap,  [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)])
 
 def check_for_comments(line, in_comment):
+	if in_comment is None:
+		in_comment = {"//": False, "/*": False, "*/": False}
+	if in_comment["//"]:
+		in_comment["//"] = False
+	if in_comment["*/"]:
+		in_comment["*/"] = False
+	if line[:2] == "//":
+		in_comment["//"] = True
+	if line[:2] == "/*":
+		in_comment["/*"] = True
+	if line[-2:] == "*/":
+		in_comment["/*"] = False
+		in_comment["*/"] = True
+	return in_comment
+
+def check_for_comments_on_whole_line(line, in_comment):
 	if in_comment is None:
 		in_comment = {"//": False, "/*": False, "*/": False}
 	if in_comment["//"]:

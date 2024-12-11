@@ -39,7 +39,7 @@ def norm_file(path, errors):
 	original_header, lines_after_header, orig_creation_date, orig_creation_user = extract_header(list_of_lines)
 	
 	no_multi_lines = join_multi_lines(lines_after_header)
-	lines_with_include_guard = check_include_guards(lines_after_header, path)
+	lines_with_include_guard = check_include_guards(no_multi_lines, path)
 	normed_lines = correct_lines_to_norm(lines_with_include_guard, path)
 	normed_lines2 = break_doxygen_comments(normed_lines)
 	with_multi_lines = split_multi_lines(normed_lines2)

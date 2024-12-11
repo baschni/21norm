@@ -92,7 +92,7 @@ def split_multi_lines(joined_lines):
 			broken_lines.append(line.rstrip())
 			continue
 
-		additional_indent = -1;
+		additional_indent = -1
 		while (index := find_outside("\\", line, \
 							   [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)])) != -1:
 			if additional_indent == -1:
