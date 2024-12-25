@@ -156,12 +156,16 @@ def check_include_guards(file: List[str], path: str):
 	
 	guard_name = get_include_guard_name(path)
 
-	if file[0][:len("#ifndef ")] == "#ifndef " and file[1][:len("# define ")] == "# define " and file[-1] == "#endif":
+	if len(file) >= 2 and file[0][:len("#ifndef ")] == "#ifndef " and file[1][:len("# define ")] == "# define " and file[-1] == "#endif":
 		file[0] = f"#ifndef {guard_name}"
 		file[1] = f"# define {guard_name}"
 		file[-1] = "#endif"
 		return file
+	elif len(file) <= 1:
+		print(len(file), file)
+		return [f"#ifndef {guard_name}", f"# define {guard_name}", ""] + file + ["#endif"]
 	else:
+		print(len(file), file)
 		return [f"#ifndef {guard_name}", f"# define {guard_name}", ""] + file + ["", "#endif"]
 
 

@@ -3,7 +3,7 @@ from brackets_quotes_comments import find_outside, find_outside_quotes, \
 	check_for_comments, get_markers_count, NO_OTHERS_INSIDE
 from header import extract_header
 from config import NAME, USER, EMAIL
-from indent import set_indent_of_function_declr, set_indent_of_var_declr, get_indent_of_variable_block, get_indent_of_prototypes_in_h_file
+from indent import set_indent_of_function_declr, set_indent_of_var_declr, get_indent_of_variable_block, get_indent_of_var_declr, get_indent_of_prototypes_in_h_file
 from copy import deepcopy
 
 FIND_OUTSIDE_QUOTES = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)]
@@ -13,6 +13,7 @@ FIND_OPEN_ROUND_BRACKETS = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_I
 def initiate_positional():
 	positional = {
 
+		"global": False,
 		"enum": False,
 		"struct": False,
 		"union": False,
@@ -91,11 +92,18 @@ def update_positional(positional, indentation_level, previous_line, current_line
 
 	if positional["function_definition"]:
 		positional["function_definition"] = False
+	
+	if positional["global"]:
+		positional["global"] = False
 
 	if indentation_level == 0 and positional["typedef"] and not positional["struct"] and not positional["enum"]:
 		positional["typedef"] = False
 	if indentation_level == 0 and current_line[:len("typedef ")] == "typedef ":
 		positional["typedef"] = True
+
+	if indentation_level == 0:
+		if current_line[:len("static ")] == "static ":
+			positional["global"] = True
 
 	if indentation_level == 0 and next_line is not None and next_line == "{":
 		if current_line.find("typedef ") != -1 or current_line.find("struct ") != -1 \
@@ -142,7 +150,7 @@ def update_positional(positional, indentation_level, previous_line, current_line
 def remove_invalid_tabs(line, positional):
 	line_new = []
 	for c in line:
-		if positional["variable_block"] or (positional["typedef"] and line[-1:] == "}") or positional["function_definition"]:
+		if positional["global"] or positional["variable_block"] or (positional["typedef"] and line[-1:] == "}") or positional["function_definition"]:
 			line_new.append(c)
 		elif c == "\t":
 			line_new.append(" ")
@@ -184,14 +192,17 @@ def check_spaces_after_keywords(current_line):
 
 def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents, path, indent_level):
 	if indent_level == 0 and line != "" and line[-1] == ";" and not positional["typedef"] and not positional["struct"] \
-		and not positional["enum"] and not positional["union"]:
+		and not positional["enum"] and not positional["union"] and line.find("(") != (-1):
 		line = set_indent_of_function_declr(line)
-
-	if positional["function_definition"]:
+	elif positional["function_definition"]:
 		line = set_indent_of_function_declr(line)
 
 	if positional["variable_block"]:
 		indent = get_indent_of_variable_block(line_index, lines)
+		line = set_indent_of_var_declr(line, indent)
+
+	if positional["global"] and not positional["function_definition"]:
+		indent = get_indent_of_var_declr(line)
 		line = set_indent_of_var_declr(line, indent)
 	
 	if  positional["typedef"] and line != "" and line[0] == "}":

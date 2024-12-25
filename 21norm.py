@@ -69,4 +69,4 @@ if __name__ == "__main__":
 	int_err_before =  sum(len(val) for val in errors_before.values())
 	int_err_after = sum(len(val) for val in errors_after.values())
 	if int_err_before != 0 or len(skipped) != 0:
-		print(f"\nnormer removed {int_err_before - int_err_after} of {int_err_before} norm errors in {len(errors_before)} files" )
+		print(f"\nnormer removed {int_err_before - int_err_after} of {int_err_before + sum (1 for value in skipped.values() if value != 'no such file or directory')} norm errors in {len(errors_before) + sum (1 for value in skipped.values() if value != 'no such file or directory')} files" )
