@@ -1,7 +1,7 @@
 from typing import List
 from config import NAME, USER, EMAIL
 from brackets_quotes_comments import find_outside, NO_OTHERS_INSIDE, check_for_comments, get_markers_count
-from parse_norminette import error_codes_for_file
+from parse_norminette import error_codes_for_file, get_errors_from_norminette
 from config import DEBUG
 from header import create_header
 import os
@@ -162,10 +162,8 @@ def check_include_guards(file: List[str], path: str):
 		file[-1] = "#endif"
 		return file
 	elif len(file) <= 1:
-		print(len(file), file)
 		return [f"#ifndef {guard_name}", f"# define {guard_name}", ""] + file + ["#endif"]
 	else:
-		print(len(file), file)
 		return [f"#ifndef {guard_name}", f"# define {guard_name}", ""] + file + ["", "#endif"]
 
 
@@ -193,10 +191,18 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
 			return
+		not_in_errors_before = [code for code in error_codes if code not in error_codes_before]
 		if not len(error_codes) > len(errors_before[path]) \
-			and len([code for code in error_codes if code not in error_codes_before]) == 0:
+			and len(not_in_errors_before) == 0:
 			header = create_header(path, USER, EMAIL, orig_creation_date, orig_creation_user)
 			with open(path, "w", encoding="utf-8") as f:
 				f.write(header + new_file)
 		else:
-			print(path + ": Error: " + NAME + " could not parse file. skipping...")
+			if len(not_in_errors_before) != 0:
+				errors_after = get_errors_from_norminette([tmp_file])[0][tmp_file]
+				for error in errors_after:
+					if error["error_code"] == not_in_errors_before[0]:
+						break
+				print(path + ":" + str(error["line"]) + ":" + str(error["column"]) + " " + NAME + " could not parse file. skipping...")
+			else:
+				print(path + ": " + NAME + " could not parse file. skipping...")
