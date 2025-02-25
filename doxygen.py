@@ -127,7 +127,7 @@ def split_buffer(buffer: str, lines: list[str], in_variable_block: bool, indent:
 	available = MAX_LINE_LENGTH - PREFIX_LENGTH - (indent - 1) * 4 - 1
 	#print("indenting", indent, buffer)
 	if buffer[0] == "@":
-		if not in_variable_block or buffer[:len("@return")] == "@return":
+		if buffer[:len("@param")] == "@param":
 			middle = min_found(buffer.find(" "), buffer.find("\t"))
 		else:
 			after_first_space = buffer.find(" ") + 1
