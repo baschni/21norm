@@ -186,8 +186,6 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 		with open(tmp_file, "w", encoding="utf-8") as f:
 			f.write(create_header(tmp_file, USER, EMAIL, orig_creation_date, orig_creation_user) +  "\n".join(check_include_guards(new_file.split("\n"), tmp_file)))
 		error_codes = error_codes_for_file(tmp_file)
-		if not DEBUG:
-			os.remove(tmp_file)
 		#print(error_codes, len(error_codes), len(errors_before[path]), [code for code in error_codes if code not in error_codes_before])
 		if len(error_codes) == len(errors_before[path]):
 			return
@@ -206,3 +204,5 @@ def check_and_if_ok_write_file(path, normed_lines, errors_before, \
 				print(path + ":" + str(error["line"]) + ":" + str(error["column"]) + " " + NAME + " could not parse file. skipping...")
 			else:
 				print(path + ": " + NAME + " could not parse file. skipping...")
+		if not DEBUG:
+			os.remove(tmp_file)

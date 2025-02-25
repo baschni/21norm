@@ -3,7 +3,7 @@ from brackets_quotes_comments import find_outside, find_outside_quotes, \
 	check_for_comments, get_markers_count, NO_OTHERS_INSIDE
 from header import extract_header
 from config import NAME, USER, EMAIL
-from indent import set_indent_of_function_declr, set_indent_of_var_declr, get_indent_of_variable_block, get_indent_of_var_declr, get_indent_of_prototypes_in_h_file
+from indent import set_indent_of_function_declr, set_indent_of_var_declr, set_indent_of_typedef_declr, get_indent_of_variable_block, get_indent_of_var_declr, get_indent_of_prototypes, get_indent_of_one_line_typedefs
 from copy import deepcopy
 
 FIND_OUTSIDE_QUOTES = [('"', '"', NO_OTHERS_INSIDE), ("'", "'", NO_OTHERS_INSIDE)]
@@ -190,7 +190,7 @@ def check_spaces_after_keywords(current_line):
 		current_line = (keyword + " ").join(current_line)
 	return current_line
 
-def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents, path, indent_level):
+def add_valid_tabs(line_index, line, lines, positional, prototype_indents, header_typedef_indents, path, indent_level):
 	if indent_level == 0 and line != "" and line[-1] == ";" and not positional["typedef"] and not positional["struct"] \
 		and not positional["enum"] and not positional["union"] and line.find("(") != (-1):
 		line = set_indent_of_function_declr(line)
@@ -210,8 +210,11 @@ def add_valid_tabs(line_index, line, lines, positional, header_prototype_indents
 	elif line[:len("typedef")] == "typedef" and line[-1] == ";":
 		line = set_indent_of_var_declr(line, 0)
 
-	if path[-2:] == ".h" and indent_level == 0 and line[-1:] == ";" and find_outside_quotes("(", line) != -1:
-		line = set_indent_of_function_declr(line, header_prototype_indents)
+	if indent_level == 0 and line[-1:] == ";":
+		if find_outside_quotes("(", line) != -1:
+			line = set_indent_of_function_declr(line, prototype_indents)
+		elif path[-2:] == ".h" and line[:len("typedef")] == "typedef":
+			line = set_indent_of_typedef_declr(line, header_typedef_indents)
 
 	return line
 
@@ -333,10 +336,12 @@ def correct_lines_to_norm(lines, path):
 	next_line = ""
 
 	positional = initiate_positional()
+	
+	prototype_indents = get_indent_of_prototypes(lines)
 	if path[-2:] == ".h":
-		header_prototype_indents = get_indent_of_prototypes_in_h_file(lines)
+		header_typedef_indents = get_indent_of_one_line_typedefs(lines)
 	else:
-		header_prototype_indents = 0
+		header_typedef_indents = 0
 	header_define_indent = 0
 
 
@@ -357,7 +362,7 @@ def correct_lines_to_norm(lines, path):
 
 		positional = update_positional(positional, indentation_level, previous_line, line, next_line, path[-2:] == ".h")
 		# remove empty lines in function after variable block
-		if line.strip() == "" and positional["function"] and not positional["line_after_variable_block"] and not positional["do_not_remove_newlines"]:
+		if line.strip() == "" and (positional["function"] or positional["typedef"]) and not positional["line_after_variable_block"] and not positional["do_not_remove_newlines"]:
 			markers_count = previous_markers_count
 			continue
 		if positional["function_definition"] and previous_line != "":
@@ -371,7 +376,7 @@ def correct_lines_to_norm(lines, path):
 					if line[-1:] != ";":
 						line = line + ";"
 		line = check_right_position_of_asterix(line, positional)
-		line = add_valid_tabs(index, line, lines, positional, header_prototype_indents, path, indentation_level)
+		line = add_valid_tabs(index, line, lines, positional, prototype_indents, header_typedef_indents, path, indentation_level)
 		line = check_spaces_after_keywords(line)
 		if not positional["include"]:
 			line = check_spaces_around_operators(line)

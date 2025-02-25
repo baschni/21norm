@@ -1,6 +1,6 @@
 from brackets_quotes_comments import find_outside_quotes
 
-def get_indent_of_prototypes_in_h_file(file):
+def get_indent_of_prototypes(file):
 	brackets = 0
 	indents = [0]
 	for line in file:
@@ -11,6 +11,19 @@ def get_indent_of_prototypes_in_h_file(file):
 		
 		if brackets == 0 and line.strip()[-1:] == ";" and line.strip()[:len("typedef")] != "typedef":
 			indents.append(get_indent_of_function_declr(line))
+	return max(indents)
+
+def get_indent_of_one_line_typedefs(file):
+	brackets = 0
+	indents = [0]
+	for line in file:
+		if find_outside_quotes("{", line) != -1:
+			brackets += 1
+		elif find_outside_quotes("}", line) != -1:
+			brackets = max(0, brackets - 1)
+		
+		if brackets == 0 and line.strip()[-1:] == ";" and line.strip()[:len("typedef")] == "typedef":
+			indents.append(get_indent_of_var_declr(line))
 	return max(indents)
 
 def get_indent_of_variable_block(line_index, lines):
@@ -37,6 +50,20 @@ def set_indent_of_function_declr(line, indent = 0):
 	split = line.split("(", 1)
 	indented = set_indent_of_var_declr(split[0], indent)
 	return indented + "(" + split[1]
+
+
+def set_indent_of_typedef_declr(line, indent = 0):
+	# index = max(line.rfind(" "), line.rfind("\t"))
+	# prefix = line[:index].strip()
+	# postfix = line[index+1:].strip()
+	# print(indent)
+	# print("prefix:" + prefix)
+	# print("postfix:" + postfix)
+	#return prefix + postfix
+	indented = set_indent_of_var_declr(line, indent)
+	return indented
+
+
 
 def get_indent_of_function_declr(line):
 	first = line.strip().split("(", 1)[0]

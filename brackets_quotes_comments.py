@@ -13,8 +13,10 @@ def get_markers_count(index_to_stop, heap, markers, mcount = None):
 		for marker in markers:
 			no_others_inside = [mcount[markr] for markr in markers \
 					   if len(markr) == 3 and markr[2] == NO_OTHERS_INSIDE and markr != marker]
+			no_own_inside = [mcount[markr] for markr in markers \
+					   if len(markr) == 3 and markr[2] == NO_OTHERS_INSIDE and markr == marker]
 			if not sum(no_others_inside):
-				if index == 0 or heap[index - 1] != "\\" or (index > 1 and heap[index - 1] == "\\" and heap[index - 2] == "\\"):
+				if index == 0 or not sum(no_own_inside) or heap[index - 1] != "\\" or (index > 1 and heap[index - 1] == "\\" and heap[index - 2] == "\\"):
 					if marker[0] == marker[1]:
 						if heap[index:][:len(marker[0])] == marker[0]:
 							if mcount[marker] == 1:
