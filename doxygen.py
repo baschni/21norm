@@ -39,7 +39,7 @@ def get_doxygen_indents(lines):
 		else:
 			indent_main = max(indent, indent_main)
 			
-		print(cline, indent)
+		#print(cline, indent)
 
 
 def break_doxygen_comments(lines: str) -> str:
@@ -101,7 +101,7 @@ def break_doxygen_comments(lines: str) -> str:
 					if len(buffer) > 0:
 						if buffer[0] != "@":
 							indent = 0
-						print(buffer)
+						#print(buffer)
 						buffer = split_buffer(buffer, new_lines, in_variable_block, indent)
 						buffer = ""
 			else:
@@ -125,7 +125,7 @@ def split_buffer(buffer: str, lines: list[str], in_variable_block: bool, indent:
 		str: _description_
 	"""
 	available = MAX_LINE_LENGTH - PREFIX_LENGTH - (indent - 1) * 4 - 1
-	print("indenting", indent, buffer)
+	#print("indenting", indent, buffer)
 	if buffer[0] == "@":
 		if not in_variable_block or buffer[:len("@return")] == "@return":
 			middle = min_found(buffer.find(" "), buffer.find("\t"))
@@ -136,10 +136,10 @@ def split_buffer(buffer: str, lines: list[str], in_variable_block: bool, indent:
 		prefix = buffer[0:middle]
 		buffer_after = buffer[middle:].strip()
 		indent_first = (indent - 1) * 4 - len(prefix) + 1
-		print(indent_first, int(indent_first / 4), (indent_first % 4 != 0))
+		#print(indent_first, int(indent_first / 4), (indent_first % 4 != 0))
 		indent_first = int(indent_first / 4) + (indent_first % 4 != 0)
 
-		print(prefix, len(prefix), indent_first, indent, 4 * (indent - 1))
+		#print(prefix, len(prefix), indent_first, indent, 4 * (indent - 1))
 		buffer = split_to_length(buffer_after, lines, available, indent_first, prefix)
 	while len(buffer.strip()) > 0:
 		buffer = split_to_length(buffer, lines, available, indent, "")
@@ -167,13 +167,13 @@ def split_to_length(buffer, lines, available, indent, prefix):
 				previous_non_space = non_space
 				non_space = index - 1
 				if counter + 1 > available:
-					print(add_doxygen_prefix(indent_prefix + buffer[:previous_non_space + 1].strip()))
+					#print(add_doxygen_prefix(indent_prefix + buffer[:previous_non_space + 1].strip()))
 					lines.append(add_doxygen_prefix(indent_prefix + buffer[:previous_non_space + 1].strip()))
 					return buffer[previous_non_space + 1:].strip() + " "
 			last_was_non_space = False
 		else:
 			last_was_non_space = True
-	print(add_doxygen_prefix(indent_prefix + buffer[:available].strip()))
+	#print(add_doxygen_prefix(indent_prefix + buffer[:available].strip()))
 	lines.append(add_doxygen_prefix(indent_prefix + buffer[:available].strip()))
 	return buffer[available:].strip() + " "
 
